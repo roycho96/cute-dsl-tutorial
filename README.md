@@ -1,84 +1,85 @@
 # CuTe DSL Tutorial
 
-CUDA의 실행 모델과 메모리 계층을 알고 있는 독자가 CuTe DSL로 실제 GPU kernel을 설계하기까지 필요한 내용을 한국어로 설명합니다.
+CUDA 코드를 작성해 본 독자를 위한 한국어 CuTe DSL 교재입니다. 간단한 elementwise kernel에서 시작해 `Layout`, `TiledCopy`, `TiledMMA`, TMA pipeline, Hopper WGMMA, Blackwell TMEM까지 단계별로 다룹니다.
 
-목표는 API 목록을 만드는 것이 아닙니다. `Layout`이 좌표를 주소로 바꾸는 과정부터 시작해 thread-value partition, TMA pipeline, Tensor Core MMA, Blackwell TMEM과 `tcgen05`까지 하나의 흐름으로 연결합니다. 모든 주요 장에는 실행 가능한 코드와 기술 도식을 함께 둡니다.
+API를 나열하는 대신 각 abstraction이 CUDA hardware와 어떻게 연결되는지 설명합니다. 모든 주요 장에는 실행 가능한 코드, tensor layout을 손으로 추적하는 예제, architecture diagram이 포함됩니다.
 
-![CuTe DSL의 실행 경계](assets/01-execution-model.svg)
+![From Python to a GPU kernel](assets/01-execution-model.svg)
 
-## 읽기 전에
+## Prerequisites
 
-- CUDA kernel launch, grid·block·thread를 이해하고 있어야 합니다.
-- global/shared/register memory와 coalescing, bank conflict를 알고 있으면 충분합니다.
-- CUTLASS C++ template 경험은 필요하지 않습니다.
-- 예제의 기준 버전은 Linux, Python 3.12, CuTe DSL 4.6.1입니다.
+- CUDA grid, block, thread, warp
+- global memory, shared memory, register
+- coalescing과 bank conflict
+- `__syncthreads()`와 기본적인 synchronization
+- matrix multiplication `C = A @ B`
 
-설치와 책의 사용 방법은 [00. 이 책을 읽는 방법](book/00-reading-guide.md)에서 설명합니다.
+CUTLASS C++ template이나 Tensor Core instruction을 미리 알 필요는 없습니다. 예제는 Linux, Python 3.12, CuTe DSL 4.6.1에서 검증합니다.
 
-## 목차
+설치와 코드를 읽는 순서는 [00. 시작하기](book/00-reading-guide.md)에 정리했습니다.
 
-### 1부. CuTe의 언어
+## Contents
 
-- [x] [01. Python에서 GPU kernel까지](book/01-execution-model.md)
-- [ ] 02. Shape와 IntTuple
-- [ ] 03. Layout은 좌표 함수다
-- [ ] 04. 계층적 Layout과 slicing
-- [ ] 05. Layout algebra: coalesce와 composition
-- [ ] 06. Layout algebra: complement, divide, tile
+### Part 1. CuTe fundamentals
 
-### 2부. Layout을 kernel로 옮기기
+- [x] [01. CuTe DSL execution model](book/01-execution-model.md)
+- [ ] 02. Shape and IntTuple
+- [ ] 03. Layout: coordinate to offset
+- [ ] 04. Hierarchical Layout and slicing
+- [ ] 05. Layout algebra: coalesce and composition
+- [ ] 06. Layout algebra: complement, divide, and tile
 
-- [ ] 07. Tensor: Engine과 Layout
-- [ ] 08. CTA tile과 local tile
+### Part 2. From Layout to kernel
+
+- [ ] 07. Tensor: Engine and Layout
+- [ ] 08. CTA tiling and `local_tile`
 - [ ] 09. Thread-value Layout
-- [ ] 10. Copy atom과 vectorized copy
-- [ ] 11. Shared-memory Layout과 swizzle
-- [ ] 12. 경계 조건과 predicate
+- [ ] 10. TiledCopy and vectorized copy
+- [ ] 11. Shared-memory Layout and swizzle
+- [ ] 12. Predication
 
-### 3부. GEMM의 구성 요소
+### Part 3. Building a GEMM
 
-- [ ] 13. MMA atom과 TiledMMA
-- [ ] 14. SIMT GEMM에서 Tensor Core GEMM으로
-- [ ] 15. GMEM→SMEM→RMEM dataflow
-- [ ] 16. Epilogue와 output tile
+- [ ] 13. MMA atom and TiledMMA
+- [ ] 14. From SIMT GEMM to Tensor Core GEMM
+- [ ] 15. GMEM → SMEM → RMEM dataflow
+- [ ] 16. GEMM epilogue
 
-### 4부. 비동기 pipeline
+### Part 4. Asynchronous pipelines
 
-- [ ] 17. TMA tensor와 descriptor
-- [ ] 18. `mbarrier`와 pipeline state
+- [ ] 17. TMA tensor and TensorMap descriptor
+- [ ] 18. `mbarrier` and PipelineState
 - [ ] 19. Multistage pipeline
-- [ ] 20. Warp specialization
+- [ ] 20. Warp-specialized kernels
 - [ ] 21. Persistent tile scheduler
 
-### 5부. Hopper와 Blackwell
+### Part 5. Hopper and Blackwell
 
 - [ ] 22. Hopper WGMMA
-- [ ] 23. Blackwell TMEM과 `tcgen05`
+- [ ] 23. Blackwell TMEM and `tcgen05`
 - [ ] 24. Blackwell 1-SM GEMM
-- [ ] 25. CTA pair와 2-SM MMA
-- [ ] 26. TMA multicast와 cluster
+- [ ] 25. CTA pair and 2-SM MMA
+- [ ] 26. TMA multicast and thread block clusters
 - [ ] 27. NVFP4 block-scaled GEMM
 
-### 6부. 실제 kernel
+### Part 6. Production kernels
 
 - [ ] 28. Fused epilogue
-- [ ] 29. Grouped GEMM과 MoE
-- [ ] 30. PyTorch·DLPack·AOT integration
-- [ ] 31. 정확성 검증과 수치 오차
-- [ ] 32. IR·PTX·SASS debugging
-- [ ] 33. Nsight Compute로 병목 확인하기
+- [ ] 29. Grouped GEMM and MoE
+- [ ] 30. PyTorch, DLPack, and AOT integration
+- [ ] 31. Correctness and numerical error
+- [ ] 32. Reading IR, PTX, and SASS
+- [ ] 33. Profiling with Nsight Compute
 
-## 코드 실행
-
-공용 WSL 환경에서는 다음과 같이 실행합니다.
+## Running the examples
 
 ```bash
 source ~/workspace/.venv_wsl/bin/activate
 python examples/01_execution_model/vector_add.py
 ```
 
-다른 환경의 설치 방법은 [00. 이 책을 읽는 방법](book/00-reading-guide.md#환경-준비)을 참고합니다.
+## References and figures
 
-## 자료 사용 원칙
+기술적인 설명은 현재 NVIDIA documentation과 CUTLASS source를 기준으로 작성합니다. Colfax Research를 비롯한 논문과 technical blog는 Layout 설명, kernel 구성, 최적화 사례를 비교하는 데 사용합니다.
 
-기술 사실은 NVIDIA의 현재 문서와 CUTLASS source를 먼저 확인합니다. 논문과 Colfax를 비롯한 기술 블로그는 설명 순서와 구현 사례를 교차 검증하는 데 사용합니다. 재배포가 허용된 외부 그림은 원본 출처와 라이선스를 캡션에 밝히고, 그 밖의 도식과 예제는 이 책에 맞춰 새로 작성합니다. 장별 참고 자료와 확인 범위는 [출처 지도](references/sources.md)에 기록하며, 포함한 외부 자산은 [제3자 저작물 고지](THIRD_PARTY_NOTICES.md)에서 확인할 수 있습니다.
+장별 source와 figure 원본은 [References](references/sources.md)에 기록합니다. 저장소에 포함된 third-party asset의 license는 [Third-party notices](THIRD_PARTY_NOTICES.md)에서 확인할 수 있습니다.

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
-  <title id="title">CuTe DSL의 세 실행 경계</title>
-  <desc id="desc">Python driver가 DLPack tensor view를 만들고 CuTe JIT host launcher를 compile한 뒤 GPU kernel을 launch하는 흐름</desc>
+  <title id="title">CuTe DSL program flow</title>
+  <desc id="desc">A Python driver compiles a CuTe host function that launches a GPU kernel over shared CUDA memory.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f8fafc"/>
@@ -38,8 +38,8 @@
   </defs>
 
   <rect width="1200" height="520" rx="24" fill="url(#bg)"/>
-  <text x="60" y="58" class="title">CuTe DSL의 세 실행 경계</text>
-  <text x="60" y="86" class="subtitle">한 Python 파일 안의 코드가 같은 시점, 같은 장치에서 실행되는 것은 아니다.</text>
+  <text x="60" y="58" class="title">From Python to a GPU kernel</text>
+  <text x="60" y="86" class="subtitle">Compilation and GPU execution happen at different stages.</text>
 
   <g filter="url(#shadow)">
     <rect x="60" y="130" width="300" height="230" rx="18" fill="url(#python)"/>
@@ -52,21 +52,21 @@
   <text x="88" y="242" class="box-code">from_dlpack(...)</text>
   <text x="88" y="274" class="box-code">cute.compile(...)</text>
   <line x1="88" y1="298" x2="332" y2="298" stroke="#93c5fd" stroke-opacity="0.7"/>
-  <text x="88" y="326" class="box-text">입력 준비 · compile 요청 · 결과 검증</text>
+  <text x="88" y="326" class="box-text">input setup · compile · validation</text>
 
-  <text x="478" y="172" class="box-title">2. JIT host launcher</text>
+  <text x="478" y="172" class="box-title">2. Host function</text>
   <text x="478" y="210" class="box-code">@cute.jit</text>
   <text x="478" y="242" class="box-code">shape / layout</text>
   <text x="478" y="274" class="box-code">grid / block / launch</text>
   <line x1="478" y1="298" x2="722" y2="298" stroke="#c4b5fd" stroke-opacity="0.7"/>
-  <text x="478" y="326" class="box-text">specialization · host-side launch 구성</text>
+  <text x="478" y="326" class="box-text">specialization · launch config</text>
 
   <text x="868" y="172" class="box-title">3. GPU kernel</text>
   <text x="868" y="210" class="box-code">@cute.kernel</text>
   <text x="868" y="242" class="box-code">thread / block index</text>
   <text x="868" y="274" class="box-code">load · compute · store</text>
   <line x1="868" y1="298" x2="1112" y2="298" stroke="#6ee7b7" stroke-opacity="0.7"/>
-  <text x="868" y="326" class="box-text">GPU thread가 실제 tensor 값을 처리</text>
+  <text x="868" y="326" class="box-text">device code on GPU threads</text>
 
   <path d="M 360 220 C 392 220, 418 220, 450 220" fill="none" stroke="#475569" stroke-width="3" marker-end="url(#arrow-blue)"/>
   <rect x="368" y="185" width="74" height="25" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
@@ -81,8 +81,8 @@
   </g>
   <circle cx="205" cy="445" r="15" fill="#f59e0b"/>
   <path d="M 197 445 h16 M 205 437 v16" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-  <text x="235" y="440" class="memory-title">하나의 CUDA allocation</text>
-  <text x="235" y="462" class="memory-text">PyTorch tensor와 CuTe tensor가 DLPack view로 같은 device memory를 공유한다. 변환 자체는 copy가 아니다.</text>
+  <text x="235" y="440" class="memory-title">Shared CUDA allocation</text>
+  <text x="235" y="462" class="memory-text">torch.Tensor and cute.Tensor refer to the same device memory through DLPack.</text>
   <path d="M 210 410 C 210 390, 210 380, 210 360" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 5"/>
   <path d="M 990 410 C 990 390, 990 380, 990 360" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 5"/>
 </svg>
