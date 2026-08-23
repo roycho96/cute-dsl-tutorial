@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-labelledby="title desc">
+  <title id="title">CuTe Tensor views created by slicing and tiling</title>
+  <desc id="desc">A four-by-six row-major tensor with a row, a column, and a two-by-three tile selected as views. Each view has a base offset and a layout but shares the original allocation.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+    <linearGradient id="header" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; }
+      .cell { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; font-size: 22px; font-weight: 700; fill: #0f172a; }
+      .small { font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; fill: #64748b; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="860" fill="#f8fafc"/>
+  <rect x="56" y="44" width="1288" height="92" rx="24" fill="url(#header)"/>
+  <text x="88" y="82" class="sans" font-size="16" font-weight="750" fill="#93c5fd" letter-spacing="0.12em">CUTE TENSOR</text>
+  <text x="88" y="116" class="mono" font-size="25" font-weight="700" fill="#ffffff">T(coord) = *(Engine + Layout(coord))</text>
+  <rect x="1014" y="66" width="296" height="50" rx="25" fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-opacity="0.22"/>
+  <text x="1162" y="98" text-anchor="middle" class="mono" font-size="18" font-weight="700" fill="#ffffff">Engine + Layout</text>
+
+  <g filter="url(#shadow)">
+    <rect x="56" y="166" width="746" height="622" rx="24" fill="#ffffff"/>
+  </g>
+  <text x="88" y="209" class="sans" font-size="18" font-weight="750" fill="#0f172a">Source tensor</text>
+  <text x="88" y="241" class="mono" font-size="18" font-weight="700" fill="#475569">A = (4,6):(6,1)</text>
+  <text x="746" y="241" text-anchor="end" class="small">values equal their element offsets</text>
+
+  <g stroke="#cbd5e1" stroke-width="1.5">
+    <rect x="92" y="280" width="100" height="80" rx="10" fill="#ffffff"/><rect x="192" y="280" width="100" height="80" rx="10" fill="#ffffff"/><rect x="292" y="280" width="100" height="80" rx="10" fill="#f5f3ff"/><rect x="392" y="280" width="100" height="80" rx="10" fill="#ffffff"/><rect x="492" y="280" width="100" height="80" rx="10" fill="#ffffff"/><rect x="592" y="280" width="100" height="80" rx="10" fill="#ffffff"/>
+    <rect x="92" y="360" width="100" height="80" rx="10" fill="#eff6ff"/><rect x="192" y="360" width="100" height="80" rx="10" fill="#eff6ff"/><rect x="292" y="360" width="100" height="80" rx="10" fill="#ede9fe"/><rect x="392" y="360" width="100" height="80" rx="10" fill="#eff6ff"/><rect x="492" y="360" width="100" height="80" rx="10" fill="#eff6ff"/><rect x="592" y="360" width="100" height="80" rx="10" fill="#eff6ff"/>
+    <rect x="92" y="440" width="100" height="80" rx="10" fill="#ecfdf5"/><rect x="192" y="440" width="100" height="80" rx="10" fill="#ecfdf5"/><rect x="292" y="440" width="100" height="80" rx="10" fill="#dcfce7"/><rect x="392" y="440" width="100" height="80" rx="10" fill="#ffffff"/><rect x="492" y="440" width="100" height="80" rx="10" fill="#ffffff"/><rect x="592" y="440" width="100" height="80" rx="10" fill="#ffffff"/>
+    <rect x="92" y="520" width="100" height="80" rx="10" fill="#ecfdf5"/><rect x="192" y="520" width="100" height="80" rx="10" fill="#ecfdf5"/><rect x="292" y="520" width="100" height="80" rx="10" fill="#dcfce7"/><rect x="392" y="520" width="100" height="80" rx="10" fill="#ffffff"/><rect x="492" y="520" width="100" height="80" rx="10" fill="#ffffff"/><rect x="592" y="520" width="100" height="80" rx="10" fill="#ffffff"/>
+  </g>
+
+  <g text-anchor="middle" dominant-baseline="middle" class="cell">
+    <text x="142" y="320">0</text><text x="242" y="320">1</text><text x="342" y="320">2</text><text x="442" y="320">3</text><text x="542" y="320">4</text><text x="642" y="320">5</text>
+    <text x="142" y="400">6</text><text x="242" y="400">7</text><text x="342" y="400">8</text><text x="442" y="400">9</text><text x="542" y="400">10</text><text x="642" y="400">11</text>
+    <text x="142" y="480">12</text><text x="242" y="480">13</text><text x="342" y="480">14</text><text x="442" y="480">15</text><text x="542" y="480">16</text><text x="642" y="480">17</text>
+    <text x="142" y="560">18</text><text x="242" y="560">19</text><text x="342" y="560">20</text><text x="442" y="560">21</text><text x="542" y="560">22</text><text x="642" y="560">23</text>
+  </g>
+
+  <rect x="84" y="352" width="616" height="96" rx="16" fill="none" stroke="#2563eb" stroke-width="4"/>
+  <rect x="284" y="272" width="116" height="336" rx="16" fill="none" stroke="#7c3aed" stroke-width="4"/>
+  <rect x="84" y="432" width="316" height="176" rx="16" fill="none" stroke="#059669" stroke-width="4"/>
+
+  <g class="sans" font-size="14" font-weight="750">
+    <rect x="92" y="628" width="154" height="38" rx="19" fill="#dbeafe"/><circle cx="115" cy="647" r="7" fill="#2563eb"/><text x="132" y="652" fill="#1e40af">row view</text>
+    <rect x="262" y="628" width="174" height="38" rx="19" fill="#ede9fe"/><circle cx="285" cy="647" r="7" fill="#7c3aed"/><text x="302" y="652" fill="#5b21b6">column view</text>
+    <rect x="452" y="628" width="150" height="38" rx="19" fill="#d1fae5"/><circle cx="475" cy="647" r="7" fill="#059669"/><text x="492" y="652" fill="#065f46">local tile</text>
+  </g>
+
+  <rect x="88" y="702" width="658" height="56" rx="15" fill="#f1f5f9"/>
+  <text x="112" y="736" class="mono" font-size="15" font-weight="700" fill="#334155">zipped_divide(A, (2,3)) → ((2,3),(2,2)):((6,1),(12,3))</text>
+
+  <g filter="url(#shadow)">
+    <rect x="834" y="166" width="510" height="622" rx="24" fill="#ffffff"/>
+  </g>
+  <text x="870" y="209" class="sans" font-size="18" font-weight="750" fill="#0f172a">Views</text>
+  <text x="870" y="239" class="small">same allocation, different base offset and Layout</text>
+
+  <g>
+    <rect x="870" y="278" width="438" height="126" rx="18" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/>
+    <circle cx="898" cy="310" r="8" fill="#2563eb"/>
+    <text x="920" y="316" class="mono" font-size="18" font-weight="700" fill="#1e3a8a">A[1, None]</text>
+    <text x="898" y="352" class="mono" font-size="17" fill="#334155">base offset +6</text>
+    <text x="898" y="380" class="mono" font-size="17" font-weight="700" fill="#1e40af">(6):(1)</text>
+
+    <rect x="870" y="426" width="438" height="126" rx="18" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="2"/>
+    <circle cx="898" cy="458" r="8" fill="#7c3aed"/>
+    <text x="920" y="464" class="mono" font-size="18" font-weight="700" fill="#4c1d95">A[None, 2]</text>
+    <text x="898" y="500" class="mono" font-size="17" fill="#334155">base offset +2</text>
+    <text x="898" y="528" class="mono" font-size="17" font-weight="700" fill="#6d28d9">(4):(6)</text>
+
+    <rect x="870" y="574" width="438" height="154" rx="18" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="2"/>
+    <circle cx="898" cy="606" r="8" fill="#059669"/>
+    <text x="920" y="612" class="mono" font-size="17" font-weight="700" fill="#064e3b">local_tile(A, (2,3), (1,0))</text>
+    <text x="898" y="650" class="mono" font-size="17" fill="#334155">base offset +12</text>
+    <text x="898" y="680" class="mono" font-size="17" font-weight="700" fill="#047857">(2,3):(6,1)</text>
+    <text x="898" y="708" class="small">tile coordinate (1,0)</text>
+  </g>
+
+  <rect x="56" y="812" width="1288" height="4" rx="2" fill="#cbd5e1"/>
+  <text x="700" y="842" text-anchor="middle" class="sans" font-size="15" font-weight="700" fill="#475569">Slicing and tiling create Tensor views; they do not copy elements.</text>
+</svg>

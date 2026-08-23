@@ -1,6 +1,6 @@
 # References
 
-Last reviewed: 2026-08-23
+Last reviewed: 2026-08-24
 
 각 장에서 사용한 documentation, source code, paper, technical blog를 기록합니다. API와 architecture의 동작은 NVIDIA documentation과 CUTLASS source를 우선합니다. 논문과 blog는 수학적 설명, kernel 구성, 구현 사례를 보완하는 데 사용합니다.
 
@@ -30,7 +30,7 @@ Last reviewed: 2026-08-23
 - [CuTe Tensor](https://docs.nvidia.com/cutlass/latest/media/docs/cpp/cute/03_tensor.html)
 - [CuTe Algorithms](https://docs.nvidia.com/cutlass/latest/media/docs/cpp/cute/04_algorithms.html)
 
-Python DSL과 C++ CuTe는 syntax가 다르지만 `Layout`과 `Tensor`의 정의를 공유합니다. 02~12장은 이 문서들의 정의와 현재 Python API를 함께 사용합니다.
+Python DSL과 C++ CuTe는 syntax가 다르지만 `Layout`과 `Tensor`의 정의를 공유합니다. Part 1과 Part 2는 이 문서들의 정의와 현재 Python API를 함께 사용합니다.
 
 ## CUDA and PTX
 
@@ -76,12 +76,12 @@ Layout algebra, TMEM access, 1-SM and 2-SM UMMA, scale-factor Layout을 설명�
 | Chapters | Primary sources |
 |---|---|
 | 01. Execution model | DSL Introduction, End-to-End Code Generation, official elementwise-add notebook |
-| 02~06. Layout | CuTe Layout and Tensor documentation, Colfax Layout algebra note |
-| 07~12. Partitioning and copy | CuTe Algorithms, official examples, Simon Veitner |
-| 13~16. MMA and GEMM | official MMA guides and tutorial GEMM source |
-| 17~21. TMA and pipeline | PTX ISA, Pipeline API, NVIDIA notebooks |
-| 22~27. Hopper and Blackwell | tuning guides, CUTLASS examples, Colfax Research |
-| 28~33. Production kernels | CUTLASS examples and tests, Nsight documentation, local measurements |
+| 02. Shape, Stride, and Layout | CuTe Layout, Python Core API, Layout algebra notebook, Colfax Layout algebra note |
+| 03. Tensor, slicing, and tiling | CuTe Tensor and Algorithms, Python Core API, official Tensor notebooks, Simon Veitner |
+| 04~06. Partitioning and copy | CuTe Algorithms, official copy examples and notebooks |
+| 07~09. MMA and GEMM | official MMA guides and tutorial GEMM source |
+| 10~14. TMA and architecture | PTX ISA, Pipeline API, NVIDIA guides and notebooks |
+| 15~17. Complete kernels | CUTLASS examples and tests, Colfax Research, Nsight documentation |
 
 ## Figures
 
