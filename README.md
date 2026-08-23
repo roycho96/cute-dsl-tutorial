@@ -1,77 +1,76 @@
 # CuTe DSL Tutorial
 
-CUDA 코드를 작성해 본 독자를 위한 한국어 CuTe DSL 교재입니다. 간단한 elementwise kernel에서 시작해 `Layout`, `TiledCopy`, `TiledMMA`, TMA pipeline, Hopper WGMMA, Blackwell TMEM까지 단계별로 다룹니다.
+CUDA kernel을 작성해 본 독자를 위한 한국어 CuTe DSL 교재입니다. 목표는 CuTe의 출력에서 `Shape:Stride`를 읽고, thread와 data의 mapping을 추적하고, vectorized copy에서 Blackwell GEMM까지 직접 구현하는 것입니다.
 
-API를 나열하는 대신 각 abstraction이 CUDA hardware와 어떻게 연결되는지 설명합니다. 모든 주요 장에는 실행 가능한 코드, tensor layout을 손으로 추적하는 예제, architecture diagram이 포함됩니다.
+Part 1에서 `Shape`, `Layout`, `Tensor`를 세 장 안에 정리합니다. Part 2부터는 매 장마다 실행 가능한 kernel을 확장하면서 새로운 개념을 도입합니다. Layout algebra는 실제 코드에 필요한 순서로 설명하고, 세부 연산은 부록에 모읍니다.
 
 ![From Python to a GPU kernel](assets/01-execution-model.svg)
 
-## Prerequisites
+## 필요한 배경
 
 - CUDA grid, block, thread, warp
 - global memory, shared memory, register
 - coalescing과 bank conflict
 - `__syncthreads()`와 기본적인 synchronization
-- matrix multiplication `C = A @ B`
+- 행렬곱 `C = A @ B`
 
 CUTLASS C++ template이나 Tensor Core instruction을 미리 알 필요는 없습니다. 예제는 Linux, Python 3.12, CuTe DSL 4.6.1에서 검증합니다.
 
 설치와 코드를 읽는 순서는 [00. 시작하기](book/00-reading-guide.md)에 정리했습니다.
 
-## Contents
+## Learning path
 
-### Part 1. CuTe fundamentals
+### Part 1. CuTe 기본 개념
 
-- [x] [01. CuTe DSL execution model](book/01-execution-model.md)
-- [x] [02. Shape and IntTuple](book/02-shape-inttuple.md)
-- [ ] 03. Layout: coordinate to offset
-- [ ] 04. Hierarchical Layout and slicing
-- [ ] 05. Layout algebra: coalesce and composition
-- [ ] 06. Layout algebra: complement, divide, and tile
+- [x] [01. First kernel and execution model](book/01-execution-model.md)
+- [ ] [02. Shape, Stride, and Layout](book/02-shape-inttuple.md)
+- [ ] 03. Tensor, slicing, and tiling
 
-### Part 2. From Layout to kernel
+Part 1을 마치면 `(M, N):(N, 1)` 같은 Layout을 읽고 tensor index가 memory offset으로 바뀌는 과정을 계산할 수 있어야 합니다.
 
-- [ ] 07. Tensor: Engine and Layout
-- [ ] 08. CTA tiling and `local_tile`
-- [ ] 09. Thread-value Layout
-- [ ] 10. TiledCopy and vectorized copy
-- [ ] 11. Shared-memory Layout and swizzle
-- [ ] 12. Predication
+### Part 2. Copy kernel로 배우는 partitioning
+
+- [ ] 04. From scalar copy to vectorized copy
+- [ ] 05. TiledCopy and thread-value Layout
+- [ ] 06. Shared-memory Layout, swizzle, and predication
+
+하나의 2D copy kernel을 vectorized copy로 바꾸고, thread마다 처리할 data를 나누고, GMEM과 SMEM 사이의 copy를 구성합니다.
 
 ### Part 3. Building a GEMM
 
-- [ ] 13. MMA atom and TiledMMA
-- [ ] 14. From SIMT GEMM to Tensor Core GEMM
-- [ ] 15. GMEM → SMEM → RMEM dataflow
-- [ ] 16. GEMM epilogue
+- [ ] 07. MMA atom and TiledMMA
+- [ ] 08. Tensor Core GEMM dataflow
+- [ ] 09. Multistage GEMM and epilogue
 
-### Part 4. Asynchronous pipelines
+Part 2에서 만든 tiling과 copy를 GEMM에 적용합니다. 각 단계에서 accumulator Layout과 GMEM → SMEM → RMEM dataflow를 코드와 함께 추적합니다.
 
-- [ ] 17. TMA tensor and TensorMap descriptor
-- [ ] 18. `mbarrier` and PipelineState
-- [ ] 19. Multistage pipeline
-- [ ] 20. Warp-specialized kernels
-- [ ] 21. Persistent tile scheduler
+### Part 4. Asynchronous pipelines and modern architectures
 
-### Part 5. Hopper and Blackwell
+- [ ] 10. TMA and `mbarrier`
+- [ ] 11. Warp-specialized and persistent pipelines
+- [ ] 12. Hopper WGMMA
+- [ ] 13. Blackwell TMEM and `tcgen05`
+- [ ] 14. Thread block clusters and 2-SM MMA
 
-- [ ] 22. Hopper WGMMA
-- [ ] 23. Blackwell TMEM and `tcgen05`
-- [ ] 24. Blackwell 1-SM GEMM
-- [ ] 25. CTA pair and 2-SM MMA
-- [ ] 26. TMA multicast and thread block clusters
-- [ ] 27. NVFP4 block-scaled GEMM
+Part 3의 GEMM에 TMA pipeline과 Hopper·Blackwell instruction을 차례로 적용합니다. 두 architecture에서 memory와 execution model이 어떻게 달라지는지 code로 비교합니다.
 
-### Part 6. Production kernels
+### Part 5. Complete kernels
 
-- [ ] 28. Fused epilogue
-- [ ] 29. Grouped GEMM and MoE
-- [ ] 30. PyTorch, DLPack, and AOT integration
-- [ ] 31. Correctness and numerical error
-- [ ] 32. Reading IR, PTX, and SASS
-- [ ] 33. Profiling with Nsight Compute
+- [ ] 15. Blackwell GEMM end to end
+- [ ] 16. NVFP4 block-scaled GEMM
+- [ ] 17. Grouped GEMM and MoE case study
 
-## Running the examples
+앞에서 만든 구성 요소를 완전한 kernel로 조립하고, dense GEMM에서 block-scaled GEMM과 grouped GEMM으로 범위를 넓힙니다.
+
+### Appendices
+
+- [ ] A. Layout algebra reference
+- [ ] B. Correctness and numerical error
+- [ ] C. Reading IR, PTX, and SASS
+- [ ] D. Profiling with Nsight Compute
+- [ ] E. PyTorch, DLPack, and AOT integration
+
+## 예제 실행
 
 ```bash
 source ~/workspace/.venv_wsl/bin/activate
