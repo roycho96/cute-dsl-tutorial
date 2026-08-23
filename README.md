@@ -23,7 +23,7 @@ CUTLASS C++ template이나 Tensor Core instruction을 미리 알 필요는 없�
 ### Part 1. CuTe 기본 개념
 
 - [x] [01. First kernel and execution model](book/01-execution-model.md)
-- [x] [02. Shape, Stride, and Layout](book/02-shape-inttuple.md)
+- [x] [02. Shape, Stride, and Layout](book/02-shape-stride-layout.md)
 - [x] [03. Tensor, slicing, and tiling](book/03-tensor-slicing-tiling.md)
 
 Part 1을 마치면 `(M, N):(N, 1)` 같은 Layout을 읽고, Tensor slicing과 tiling이 base offset과 Layout을 어떻게 바꾸는지 계산할 수 있어야 합니다.
