@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Flat and hierarchical CuTe Shapes</title>
+  <desc id="desc">A comparison of the flat Shape (2, 3, 4) and the hierarchical Shape (2, (3, 4)). Both have size 24, but their rank and depth differ.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="flatHeader" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="hierHeader" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#c084fc"/>
+    </linearGradient>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; }
+      .edge { fill: none; stroke: #94a3b8; stroke-width: 2.5; stroke-linecap: round; }
+      .muted { fill: #64748b; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="720" fill="#f8fafc"/>
+  <text x="64" y="68" class="sans" font-size="20" font-weight="700" fill="#0f172a" letter-spacing="0.08em">INTTUPLE AS A TREE</text>
+  <text x="64" y="109" class="sans" font-size="24" fill="#475569">Tuple nesting is part of a CuTe Shape.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="64" y="148" width="510" height="414" rx="22" fill="#ffffff"/>
+    <rect x="64" y="148" width="510" height="92" rx="22" fill="url(#flatHeader)"/>
+    <path d="M64 218H574V240H64Z" fill="url(#flatHeader)"/>
+  </g>
+  <text x="96" y="190" class="sans" font-size="16" font-weight="700" fill="#dbeafe" letter-spacing="0.12em">FLAT SHAPE</text>
+  <text x="96" y="222" class="mono" font-size="27" font-weight="700" fill="#ffffff">(2, 3, 4)</text>
+
+  <rect x="258" y="278" width="120" height="52" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="318" y="311" text-anchor="middle" class="mono" font-size="20" font-weight="700" fill="#1d4ed8">Shape</text>
+
+  <path class="edge" d="M318 330V358M318 358H150V386M318 358V386M318 358H486V386"/>
+
+  <g>
+    <rect x="96" y="386" width="108" height="74" rx="14" fill="#ffffff" stroke="#bfdbfe" stroke-width="2"/>
+    <text x="150" y="411" text-anchor="middle" class="sans muted" font-size="13">mode 0</text>
+    <text x="150" y="443" text-anchor="middle" class="mono" font-size="25" font-weight="700" fill="#0f172a">2</text>
+  </g>
+  <g>
+    <rect x="264" y="386" width="108" height="74" rx="14" fill="#ffffff" stroke="#bfdbfe" stroke-width="2"/>
+    <text x="318" y="411" text-anchor="middle" class="sans muted" font-size="13">mode 1</text>
+    <text x="318" y="443" text-anchor="middle" class="mono" font-size="25" font-weight="700" fill="#0f172a">3</text>
+  </g>
+  <g>
+    <rect x="432" y="386" width="108" height="74" rx="14" fill="#ffffff" stroke="#bfdbfe" stroke-width="2"/>
+    <text x="486" y="411" text-anchor="middle" class="sans muted" font-size="13">mode 2</text>
+    <text x="486" y="443" text-anchor="middle" class="mono" font-size="25" font-weight="700" fill="#0f172a">4</text>
+  </g>
+
+  <g class="sans">
+    <rect x="96" y="492" width="132" height="42" rx="21" fill="#eff6ff"/>
+    <text x="162" y="519" text-anchor="middle" font-size="16" font-weight="700" fill="#1d4ed8">rank 3</text>
+    <rect x="253" y="492" width="132" height="42" rx="21" fill="#eff6ff"/>
+    <text x="319" y="519" text-anchor="middle" font-size="16" font-weight="700" fill="#1d4ed8">depth 1</text>
+    <rect x="410" y="492" width="132" height="42" rx="21" fill="#eff6ff"/>
+    <text x="476" y="519" text-anchor="middle" font-size="16" font-weight="700" fill="#1d4ed8">size 24</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="626" y="148" width="510" height="414" rx="22" fill="#ffffff"/>
+    <rect x="626" y="148" width="510" height="92" rx="22" fill="url(#hierHeader)"/>
+    <path d="M626 218H1136V240H626Z" fill="url(#hierHeader)"/>
+  </g>
+  <text x="658" y="190" class="sans" font-size="16" font-weight="700" fill="#f3e8ff" letter-spacing="0.12em">HIERARCHICAL SHAPE</text>
+  <text x="658" y="222" class="mono" font-size="27" font-weight="700" fill="#ffffff">(2, (3, 4))</text>
+
+  <rect x="821" y="260" width="120" height="48" rx="12" fill="#faf5ff" stroke="#d8b4fe" stroke-width="2"/>
+  <text x="881" y="291" text-anchor="middle" class="mono" font-size="20" font-weight="700" fill="#7e22ce">Shape</text>
+
+  <path class="edge" d="M881 308V330M881 330H741V350M881 330H1007V350"/>
+
+  <g>
+    <rect x="687" y="350" width="108" height="64" rx="14" fill="#ffffff" stroke="#e9d5ff" stroke-width="2"/>
+    <text x="741" y="373" text-anchor="middle" class="sans muted" font-size="13">mode 0</text>
+    <text x="741" y="403" text-anchor="middle" class="mono" font-size="25" font-weight="700" fill="#0f172a">2</text>
+  </g>
+  <g>
+    <rect x="940" y="350" width="134" height="64" rx="14" fill="#faf5ff" stroke="#d8b4fe" stroke-width="2"/>
+    <text x="1007" y="373" text-anchor="middle" class="sans muted" font-size="13">mode 1</text>
+    <text x="1007" y="403" text-anchor="middle" class="mono" font-size="22" font-weight="700" fill="#7e22ce">(3, 4)</text>
+  </g>
+
+  <path class="edge" d="M1007 414V431M1007 431H948V440M1007 431H1066V440"/>
+  <g>
+    <circle cx="948" cy="458" r="20" fill="#ffffff" stroke="#e9d5ff" stroke-width="2"/>
+    <text x="948" y="465" text-anchor="middle" class="mono" font-size="19" font-weight="700" fill="#0f172a">3</text>
+    <circle cx="1066" cy="458" r="20" fill="#ffffff" stroke="#e9d5ff" stroke-width="2"/>
+    <text x="1066" y="465" text-anchor="middle" class="mono" font-size="19" font-weight="700" fill="#0f172a">4</text>
+  </g>
+
+  <g class="sans">
+    <rect x="658" y="500" width="132" height="42" rx="21" fill="#faf5ff"/>
+    <text x="724" y="527" text-anchor="middle" font-size="16" font-weight="700" fill="#7e22ce">rank 2</text>
+    <rect x="815" y="500" width="132" height="42" rx="21" fill="#faf5ff"/>
+    <text x="881" y="527" text-anchor="middle" font-size="16" font-weight="700" fill="#7e22ce">depth 2</text>
+    <rect x="972" y="500" width="132" height="42" rx="21" fill="#faf5ff"/>
+    <text x="1038" y="527" text-anchor="middle" font-size="16" font-weight="700" fill="#7e22ce">size 24</text>
+  </g>
+
+  <rect x="64" y="600" width="1072" height="76" rx="18" fill="#0f172a"/>
+  <circle cx="104" cy="638" r="14" fill="#22c55e"/>
+  <path d="M98 638L102 642L110 633" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="136" y="633" class="sans" font-size="19" font-weight="700" fill="#ffffff">Same size, different hierarchy</text>
+  <text x="136" y="657" class="sans" font-size="15" fill="#cbd5e1">Shape describes a coordinate domain. Stride determines memory offsets.</text>
+</svg>

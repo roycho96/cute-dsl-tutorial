@@ -23,7 +23,7 @@ CUTLASS C++ template이나 Tensor Core instruction을 미리 알 필요는 없�
 ### Part 1. CuTe fundamentals
 
 - [x] [01. CuTe DSL execution model](book/01-execution-model.md)
-- [ ] 02. Shape and IntTuple
+- [x] [02. Shape and IntTuple](book/02-shape-inttuple.md)
 - [ ] 03. Layout: coordinate to offset
 - [ ] 04. Hierarchical Layout and slicing
 - [ ] 05. Layout algebra: coalesce and composition
