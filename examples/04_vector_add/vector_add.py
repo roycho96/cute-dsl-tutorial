@@ -31,8 +31,8 @@ def scalar_vector_add(
 ):
     blocks = cute.ceil_div(cute.size(out), THREADS)
     scalar_vector_add_kernel(a, b, out).launch(
-        grid=(blocks, 1, 1),
-        block=(THREADS, 1, 1),
+        grid=(blocks, 1, 1),  # (x, y, z): one-dimensional grid
+        block=(THREADS, 1, 1),  # (x, y, z): one-dimensional block
     )
 
 
@@ -75,8 +75,8 @@ def vectorized_vector_add(
     packets = cute.ceil_div(size, VALUES_PER_THREAD)
     blocks = cute.ceil_div(packets, THREADS)
     vectorized_vector_add_kernel(packets_a, packets_b, packets_out, size).launch(
-        grid=(blocks, 1, 1),
-        block=(THREADS, 1, 1),
+        grid=(blocks, 1, 1),  # (x, y, z): one-dimensional grid
+        block=(THREADS, 1, 1),  # (x, y, z): one-dimensional block
     )
 
 

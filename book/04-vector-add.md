@@ -81,12 +81,32 @@ def scalar_vector_add(
 ):
     blocks = cute.ceil_div(cute.size(out), THREADS)
     scalar_vector_add_kernel(a, b, out).launch(
-        grid=(blocks, 1, 1),
-        block=(THREADS, 1, 1),
+        grid=(blocks, 1, 1),  # (x, y, z): one-dimensional grid
+        block=(THREADS, 1, 1),  # (x, y, z): one-dimensional block
     )
 ```
 
-`ceil_div(N, 256)`은 모든 element를 포함하는 최소 block 수를 구합니다. 예를 들어 `N = 4099`이면 17개 block을 launch하고, 마지막 block에서는 앞의 3개 thread만 유효한 값을 처리합니다.
+`launch()`의 `grid`와 `block`은 CUDA와 같은 `(x, y, z)` 순서입니다. 이 kernel은 1D index만 사용하므로 x축에만 여러 block과 thread를 배치하고, 사용하지 않는 y축과 z축의 크기는 1로 둡니다.
+
+| 코드 | 의미 |
+|---|---|
+| `cute.size(out)` | `out`의 logical element 수를 구합니다. |
+| `cute.ceil_div(N, THREADS)` | `N`을 모두 처리하는 데 필요한 block 수를 올림 계산합니다. |
+| `grid=(blocks, 1, 1)` | x축에 `blocks`개 block을 배치하고 y축과 z축에는 하나씩 배치합니다. |
+| `block=(THREADS, 1, 1)` | 각 block의 x축에 256개 thread를 두고 y축과 z축에는 하나씩 둡니다. |
+| `kernel(...).launch(...)` | 지정한 grid와 block으로 GPU kernel을 launch합니다. |
+
+Kernel의 `cute.arch.block_idx()`와 `cute.arch.thread_idx()`도 `(x, y, z)` tuple을 반환합니다. `bid, _, _`와 `tid, _, _`는 x index만 변수에 저장하고 y와 z는 사용하지 않는다는 뜻입니다.
+
+```text
+grid.x  = blocks
+block.x = THREADS = 256
+bid     = blockIdx.x
+tid     = threadIdx.x
+i       = bid × block.x + tid
+```
+
+예를 들어 `N = 4099`이면 `ceil_div(4099, 256) = 17`이므로 17개 block, 총 4352개 thread를 launch합니다. 앞의 4099개 thread만 유효한 element를 처리하고 나머지는 `i < cute.size(out)` 조건에서 제외됩니다.
 
 ## 3. 네 값을 하나의 packet으로 묶기
 
@@ -215,12 +235,12 @@ def vectorized_vector_add(
     packets = cute.ceil_div(size, VALUES_PER_THREAD)
     blocks = cute.ceil_div(packets, THREADS)
     vectorized_vector_add_kernel(packets_a, packets_b, packets_out, size).launch(
-        grid=(blocks, 1, 1),
-        block=(THREADS, 1, 1),
+        grid=(blocks, 1, 1),  # (x, y, z): one-dimensional grid
+        block=(THREADS, 1, 1),  # (x, y, z): one-dimensional block
     )
 ```
 
-`packets`에는 마지막 partial packet도 포함됩니다. Scalar kernel이 `ceil_div(N, 256)`개 block을 사용했다면 vectorized kernel은 `ceil_div(ceil_div(N, 4), 256)`개 block을 사용합니다.
+`packets`에는 마지막 partial packet도 포함됩니다. Scalar kernel이 `ceil_div(N, 256)`개 block을 사용했다면 vectorized kernel은 `ceil_div(ceil_div(N, 4), 256)`개 block을 사용합니다. `grid`와 `block`의 tuple은 scalar launcher와 같은 1D 구성이지만, 여기서 thread 하나는 element 하나가 아니라 packet 하나를 담당합니다.
 
 CuTe DSL source만 보고 실제 instruction 폭을 단정해서는 안 됩니다. Target architecture, alignment, Layout, compiler version에 따라 lowering 결과가 달라질 수 있습니다. 이 예제의 생성 코드를 확인하는 방법은 뒤에서 다룹니다.
 
