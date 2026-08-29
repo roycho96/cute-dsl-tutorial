@@ -12,7 +12,7 @@ out[i] = a[i] + b[i]
 
 *Figure 4-1. Scalar kernel은 thread마다 FP32 값 하나를 처리하고, vectorized kernel은 연속된 네 값을 하나의 16-byte packet으로 처리한다.*
 
-전체 코드는 [`examples/04_vector_add/vector_add.py`](../examples/04_vector_add/vector_add.py)에 있습니다.
+이 장에서는 실행에 필요한 코드를 구성 요소별로 나누고, 각 코드 바로 아래에서 Layout과 thread mapping을 설명합니다. 완성된 파일은 [`examples/04_vector_add/vector_add.py`](../examples/04_vector_add/vector_add.py)에서 실행할 수 있습니다.
 
 ## 1. 연산량과 memory traffic
 
@@ -29,12 +29,25 @@ Cache 효과를 제외하면 arithmetic intensity는 `1 / 12 FLOP/byte`입니다
 
 ## 2. Scalar kernel
 
-먼저 thread 하나가 element 하나를 처리하는 CUDA의 기본 mapping을 그대로 작성합니다.
+먼저 필요한 모듈과 두 상수를 선언합니다.
 
 ```python
+import argparse
+
+import cutlass
+import torch
+from cutlass import cute
+from cutlass.cute.runtime import from_dlpack
+
 THREADS = 256
+VALUES_PER_THREAD = 4
+```
 
+`cute`는 kernel, JIT function, Layout 연산을 제공합니다. `cutlass.Int32`와 `cutlass.range_constexpr()`는 뒤의 vectorized kernel에서 사용합니다. `from_dlpack()`은 PyTorch tensor의 CUDA allocation을 복사하지 않고 CuTe Tensor로 전달합니다.
 
+Scalar kernel은 thread 하나가 element 하나를 처리하는 CUDA의 기본 mapping을 그대로 사용합니다.
+
+```python
 @cute.kernel
 def scalar_vector_add_kernel(
     a: cute.Tensor,
@@ -132,43 +145,82 @@ Runtime에 `N`이 정해지는 예제에서는 packet 수가 dynamic이므로 La
 ((4),(?)):((1),(4))
 ```
 
-Packet view는 `@cute.jit` function에서 한 번 만듭니다. Kernel은 변환된 Tensor를 인자로 받습니다.
+Packet view는 `@cute.jit` function에서 만들고 kernel argument로 전달합니다.
 
 ```python
-@cute.jit
-def vectorized_vector_add(a, b, out):
-    packets_a = cute.zipped_divide(a, (4,))
-    packets_b = cute.zipped_divide(b, (4,))
-    packets_out = cute.zipped_divide(out, (4,))
-    size = cute.size(out)
-    packets = cute.ceil_div(size, 4)
-    blocks = cute.ceil_div(packets, THREADS)
-
-    vectorized_vector_add_kernel(
-        packets_a, packets_b, packets_out, size
-    ).launch(
-        grid=(blocks, 1, 1),
-        block=(THREADS, 1, 1),
-    )
+packets_a = cute.zipped_divide(a, (VALUES_PER_THREAD,))
+packets_b = cute.zipped_divide(b, (VALUES_PER_THREAD,))
+packets_out = cute.zipped_divide(out, (VALUES_PER_THREAD,))
 ```
 
-Scalar kernel이 `ceil_div(N, 256)`개 block을 사용했다면 vectorized kernel은 `ceil_div(ceil_div(N, 4), 256)`개 block을 사용합니다.
+세 Tensor에 같은 Layout transformation을 적용하므로 같은 `(lane, packet_idx)` coordinate가 `a`, `b`, `out`의 같은 logical element를 가리킵니다.
 
 ## 5. Packet load와 store
 
-Kernel에서 `None`으로 첫 번째 mode를 남기면 packet 하나를 나타내는 Tensor view를 얻습니다.
+Vectorized kernel의 전체 코드는 다음과 같습니다.
+
+```python
+@cute.kernel
+def vectorized_vector_add_kernel(
+    packets_a: cute.Tensor,
+    packets_b: cute.Tensor,
+    packets_out: cute.Tensor,
+    size: cutlass.Int32,
+):
+    tid, _, _ = cute.arch.thread_idx()
+    bid, _, _ = cute.arch.block_idx()
+    packet_idx = bid * THREADS + tid
+    full_packets = size // VALUES_PER_THREAD
+
+    if packet_idx < full_packets:
+        packet_a = packets_a[(None, packet_idx)]
+        packet_b = packets_b[(None, packet_idx)]
+        packet_out = packets_out[(None, packet_idx)]
+        packet_out.store(packet_a.load() + packet_b.load())
+    elif packet_idx == full_packets:
+        for lane in cutlass.range_constexpr(VALUES_PER_THREAD):
+            i = packet_idx * VALUES_PER_THREAD + lane
+            if i < size:
+                packets_out[(lane, packet_idx)] = (
+                    packets_a[(lane, packet_idx)] + packets_b[(lane, packet_idx)]
+                )
+```
+
+`packet_idx`는 scalar kernel의 `i`와 같은 방식으로 계산하지만 element가 아니라 packet을 선택합니다. `full_packets`보다 작은 index는 네 element가 모두 allocation 안에 있으므로 vectorized path를 실행합니다.
+
+`None`으로 첫 번째 mode를 남기면 packet 하나를 나타내는 Tensor view를 얻습니다.
 
 ```python
 packet_a = packets_a[(None, packet_idx)]
 packet_b = packets_b[(None, packet_idx)]
 packet_out = packets_out[(None, packet_idx)]
+packet_out.store(packet_a.load() + packet_b.load())
 ```
 
 각 view의 logical shape는 `(4,)`이고 stride는 `(1,)`입니다. `load()`는 네 값을 register의 `TensorSSA`로 읽습니다. Addition은 네 element에 적용되고, `store()`가 결과를 memory에 씁니다.
 
+Kernel을 launch하는 JIT function도 함께 작성합니다.
+
 ```python
-packet_out.store(packet_a.load() + packet_b.load())
+@cute.jit
+def vectorized_vector_add(
+    a: cute.Tensor,
+    b: cute.Tensor,
+    out: cute.Tensor,
+):
+    packets_a = cute.zipped_divide(a, (VALUES_PER_THREAD,))
+    packets_b = cute.zipped_divide(b, (VALUES_PER_THREAD,))
+    packets_out = cute.zipped_divide(out, (VALUES_PER_THREAD,))
+    size = cute.size(out)
+    packets = cute.ceil_div(size, VALUES_PER_THREAD)
+    blocks = cute.ceil_div(packets, THREADS)
+    vectorized_vector_add_kernel(packets_a, packets_b, packets_out, size).launch(
+        grid=(blocks, 1, 1),
+        block=(THREADS, 1, 1),
+    )
 ```
+
+`packets`에는 마지막 partial packet도 포함됩니다. Scalar kernel이 `ceil_div(N, 256)`개 block을 사용했다면 vectorized kernel은 `ceil_div(ceil_div(N, 4), 256)`개 block을 사용합니다.
 
 CuTe DSL source만 보고 실제 instruction 폭을 단정해서는 안 됩니다. Target architecture, alignment, Layout, compiler version에 따라 lowering 결과가 달라질 수 있습니다. 이 예제의 생성 코드를 확인하는 방법은 뒤에서 다룹니다.
 
@@ -184,16 +236,9 @@ tail:         [4096, 4099)
 완전한 packet만 vectorized load와 store를 사용합니다. 마지막 packet을 담당하는 thread는 남은 element를 하나씩 검사합니다.
 
 ```python
-full_packets = size // 4
-
-if packet_idx < full_packets:
-    packet_a = packets_a[(None, packet_idx)]
-    packet_b = packets_b[(None, packet_idx)]
-    packet_out = packets_out[(None, packet_idx)]
-    packet_out.store(packet_a.load() + packet_b.load())
 elif packet_idx == full_packets:
-    for lane in cutlass.range_constexpr(4):
-        i = packet_idx * 4 + lane
+    for lane in cutlass.range_constexpr(VALUES_PER_THREAD):
+        i = packet_idx * VALUES_PER_THREAD + lane
         if i < size:
             packets_out[(lane, packet_idx)] = (
                 packets_a[(lane, packet_idx)]
@@ -207,7 +252,54 @@ elif packet_idx == full_packets:
 
 ## 7. 실행과 결과 확인
 
-기본 입력 크기는 tail path까지 실행하도록 4099로 정했습니다.
+앞에서 만든 `as_cute_tensor()`를 사용해 PyTorch tensor를 변환하고 두 JIT function을 compile합니다.
+
+```python
+def main(size: int) -> None:
+    if not torch.cuda.is_available():
+        raise RuntimeError("CUDA GPU is required")
+    if size <= 0:
+        raise ValueError("size must be positive")
+
+    torch.manual_seed(2026)
+    a = torch.randn(size, device="cuda", dtype=torch.float32)
+    b = torch.randn_like(a)
+    scalar_out = torch.empty_like(a)
+    vectorized_out = torch.empty_like(a)
+
+    a_cute = as_cute_tensor(a)
+    b_cute = as_cute_tensor(b)
+    scalar_out_cute = as_cute_tensor(scalar_out)
+    vectorized_out_cute = as_cute_tensor(vectorized_out)
+
+    scalar = cute.compile(scalar_vector_add, a_cute, b_cute, scalar_out_cute)
+    vectorized = cute.compile(
+        vectorized_vector_add,
+        a_cute,
+        b_cute,
+        vectorized_out_cute,
+    )
+
+    scalar(a_cute, b_cute, scalar_out_cute)
+    vectorized(a_cute, b_cute, vectorized_out_cute)
+    torch.cuda.synchronize()
+
+    reference = a + b
+    torch.testing.assert_close(scalar_out, reference, rtol=0, atol=0)
+    torch.testing.assert_close(vectorized_out, reference, rtol=0, atol=0)
+    print(f"PASS: {size} FP32 elements")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--size", type=int, default=4099)
+    args = parser.parse_args()
+    main(args.size)
+```
+
+`mark_layout_dynamic()`은 Tensor의 크기를 runtime 값으로 유지하므로 한 번 compile한 함수가 여러 `N`을 처리할 수 있습니다. `cute.compile()`은 JIT function과 argument type을 기준으로 실행 가능한 함수를 만들고, 그다음 호출에서 실제 Tensor를 전달합니다.
+
+두 kernel launch가 비동기로 제출되므로 output을 검사하기 전에 `torch.cuda.synchronize()`를 호출합니다. 기본 입력 크기는 tail path까지 실행하도록 4099로 정했습니다.
 
 ```bash
 source ~/workspace/.venv_wsl/bin/activate
@@ -222,15 +314,7 @@ for n in 1 3 4 5 4096 4099 1048579; do
 done
 ```
 
-예제는 scalar와 vectorized output을 각각 PyTorch 결과와 비교합니다.
-
-```python
-reference = a + b
-torch.testing.assert_close(scalar_out, reference, rtol=0, atol=0)
-torch.testing.assert_close(vectorized_out, reference, rtol=0, atol=0)
-```
-
-FP32 addition의 operand 순서가 같으므로 이 예제에서는 tolerance 없이 exact comparison을 사용합니다.
+`main()`의 마지막 두 `assert_close()`는 scalar와 vectorized output을 각각 PyTorch 결과와 비교합니다. FP32 addition의 operand 순서가 같으므로 이 예제에서는 tolerance 없이 exact comparison을 사용합니다.
 
 ## 8. PTX와 SASS 확인하기
 
