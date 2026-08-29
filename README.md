@@ -30,12 +30,12 @@ Part 1을 마치면 `(M, N):(N, 1)` 같은 Layout을 읽고, Tensor slicing과 t
 
 ### Part 2. Fundamental GPU kernels
 
-- [ ] 04. Vectorized elementwise kernel
+- [ ] 04. Vector addition: scalar and vectorized kernels
 - [ ] 05. Warp and block reduction
 - [ ] 06. Shared-memory transpose
 - [ ] 07. Row-wise softmax
 
-Elementwise 연산, reduction, transpose, softmax를 직접 구현합니다. 각 kernel에서 vectorized memory access, warp shuffle, shared-memory tiling, `TiledCopy`, synchronization, predication을 필요한 시점에 도입합니다.
+Vector addition, reduction, transpose, softmax를 직접 구현합니다. 각 kernel에서 vectorized memory access, warp shuffle, shared-memory tiling, `TiledCopy`, synchronization, predication을 필요한 시점에 도입합니다.
 
 ### Part 3. Building a Tensor Core GEMM
 
