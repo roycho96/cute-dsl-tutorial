@@ -1,6 +1,6 @@
 # References
 
-Last reviewed: 2026-08-24
+Last reviewed: 2026-08-29
 
 각 장에서 사용한 documentation, source code, paper, technical blog를 기록합니다. API와 architecture의 동작은 NVIDIA documentation과 CUTLASS source를 우선합니다. 논문과 blog는 수학적 설명, kernel 구성, 구현 사례를 보완하는 데 사용합니다.
 
@@ -78,10 +78,13 @@ Layout algebra, TMEM access, 1-SM and 2-SM UMMA, scale-factor Layout을 설명�
 | 01. Execution model | DSL Introduction, End-to-End Code Generation, official elementwise-add notebook |
 | 02. Shape, Stride, and Layout | CuTe Layout, Python Core API, Layout algebra notebook, Colfax Layout algebra note |
 | 03. Tensor, slicing, and tiling | CuTe Tensor and Algorithms, Python Core API, official Tensor notebooks, Simon Veitner |
-| 04~06. Partitioning and copy | CuTe Algorithms, official copy examples and notebooks |
-| 07~09. MMA and GEMM | official MMA guides and tutorial GEMM source |
-| 10~14. TMA and architecture | PTX ISA, Pipeline API, NVIDIA guides and notebooks |
-| 15~17. Complete kernels | CUTLASS examples and tests, Colfax Research, Nsight documentation |
+| 04. Vectorized elementwise | official elementwise-add notebook, CuTe Algorithms, Python Core API |
+| 05. Warp and block reduction | CUDA Programming Guide, CuTe arch API, CUTLASS examples |
+| 06. Shared-memory transpose | CUDA Programming Guide, CuTe Algorithms, copy API and examples |
+| 07. Row-wise softmax | CUDA Programming Guide, CuTe math and arch APIs, CUTLASS examples |
+| 08~10. MMA and GEMM | official MMA guides and tutorial GEMM source |
+| 11~15. TMA and architecture | PTX ISA, Pipeline API, NVIDIA guides and notebooks |
+| 16~18. Complete kernels | CUTLASS examples and tests, Colfax Research, Nsight documentation |
 
 ## Figures
 

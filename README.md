@@ -1,6 +1,6 @@
 # CuTe DSL Tutorial
 
-CUDA kernel을 작성해 본 독자를 위한 한국어 CuTe DSL 교재입니다. 목표는 CuTe의 출력에서 `Shape:Stride`를 읽고, thread와 data의 mapping을 추적하고, vectorized copy에서 Blackwell GEMM까지 직접 구현하는 것입니다.
+CUDA kernel을 작성해 본 독자를 위한 한국어 CuTe DSL 교재입니다. 목표는 CuTe의 출력에서 `Shape:Stride`를 읽고, thread와 data의 mapping을 추적하고, elementwise kernel과 reduction에서 Blackwell GEMM까지 직접 구현하는 것입니다.
 
 Part 1에서 `Shape`, `Layout`, `Tensor`를 세 장 안에 정리합니다. Part 2부터는 매 장마다 실행 가능한 kernel을 확장하면서 새로운 개념을 도입합니다. Layout algebra는 실제 코드에 필요한 순서로 설명하고, 세부 연산은 부록에 모읍니다.
 
@@ -28,37 +28,38 @@ CUTLASS C++ template이나 Tensor Core instruction을 미리 알 필요는 없�
 
 Part 1을 마치면 `(M, N):(N, 1)` 같은 Layout을 읽고, Tensor slicing과 tiling이 base offset과 Layout을 어떻게 바꾸는지 계산할 수 있어야 합니다.
 
-### Part 2. Copy kernel로 배우는 partitioning
+### Part 2. Fundamental GPU kernels
 
-- [ ] 04. From scalar copy to vectorized copy
-- [ ] 05. TiledCopy and thread-value Layout
-- [ ] 06. Shared-memory Layout, swizzle, and predication
+- [ ] 04. Vectorized elementwise kernel
+- [ ] 05. Warp and block reduction
+- [ ] 06. Shared-memory transpose
+- [ ] 07. Row-wise softmax
 
-하나의 2D copy kernel을 vectorized copy로 바꾸고, thread마다 처리할 data를 나누고, GMEM과 SMEM 사이의 copy를 구성합니다.
+Elementwise 연산, reduction, transpose, softmax를 직접 구현합니다. 각 kernel에서 vectorized memory access, warp shuffle, shared-memory tiling, `TiledCopy`, synchronization, predication을 필요한 시점에 도입합니다.
 
-### Part 3. Building a GEMM
+### Part 3. Building a Tensor Core GEMM
 
-- [ ] 07. MMA atom and TiledMMA
-- [ ] 08. Tensor Core GEMM dataflow
-- [ ] 09. Multistage GEMM and epilogue
+- [ ] 08. MMA atom and TiledMMA
+- [ ] 09. First tiled Tensor Core GEMM
+- [ ] 10. Multistage GEMM and epilogue
 
-Part 2에서 만든 tiling과 copy를 GEMM에 적용합니다. 각 단계에서 accumulator Layout과 GMEM → SMEM → RMEM dataflow를 코드와 함께 추적합니다.
+Part 2에서 사용한 thread partitioning, vectorized memory access, shared-memory staging을 GEMM에 적용합니다. 각 단계에서 accumulator Layout과 GMEM → SMEM → RMEM dataflow를 코드와 함께 추적합니다.
 
 ### Part 4. Asynchronous pipelines and modern architectures
 
-- [ ] 10. TMA and `mbarrier`
-- [ ] 11. Warp-specialized and persistent pipelines
-- [ ] 12. Hopper WGMMA
-- [ ] 13. Blackwell TMEM and `tcgen05`
-- [ ] 14. Thread block clusters and 2-SM MMA
+- [ ] 11. TMA and `mbarrier`
+- [ ] 12. Warp-specialized and persistent pipelines
+- [ ] 13. Hopper WGMMA
+- [ ] 14. Blackwell TMEM and `tcgen05`
+- [ ] 15. Thread block clusters and 2-SM MMA
 
 Part 3의 GEMM에 TMA pipeline과 Hopper·Blackwell instruction을 차례로 적용합니다. 두 architecture에서 memory와 execution model이 어떻게 달라지는지 code로 비교합니다.
 
 ### Part 5. Complete kernels
 
-- [ ] 15. Blackwell GEMM end to end
-- [ ] 16. NVFP4 block-scaled GEMM
-- [ ] 17. Grouped GEMM and MoE case study
+- [ ] 16. Blackwell GEMM end to end
+- [ ] 17. NVFP4 block-scaled GEMM
+- [ ] 18. Grouped GEMM and MoE case study
 
 앞에서 만든 구성 요소를 완전한 kernel로 조립하고, dense GEMM에서 block-scaled GEMM과 grouped GEMM으로 범위를 넓힙니다.
 
