@@ -30,7 +30,7 @@ Part 1을 마치면 `(M, N):(N, 1)` 같은 Layout을 읽고, Tensor slicing과 t
 
 ### Part 2. Fundamental GPU kernels
 
-- [ ] 04. Vector addition: scalar and vectorized kernels
+- [x] [04. Vector addition: scalar and vectorized kernels](book/04-vector-add.md)
 - [ ] 05. Warp and block reduction
 - [ ] 06. Shared-memory transpose
 - [ ] 07. Row-wise softmax

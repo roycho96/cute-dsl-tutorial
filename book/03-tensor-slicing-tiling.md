@@ -199,7 +199,7 @@ tile:   [[12, 13, 14],
 - `zipped_divide()`는 coordinate를 tile 내부와 tile 번호로 나눕니다.
 - `local_tile()`은 tiling한 Tensor에서 tile 하나를 선택합니다.
 
-Part 1에서는 coordinate가 storage에 연결되고 Tensor view가 만들어지는 과정까지 확인했습니다. Part 2에서는 이 Tensor를 여러 thread에 나누고 scalar copy를 vectorized copy로 확장합니다.
+Part 1에서는 coordinate가 storage에 연결되고 Tensor view가 만들어지는 과정까지 확인했습니다. Part 2에서는 이 Tensor를 사용해 scalar vector addition을 vectorized kernel로 확장합니다.
 
 ## References
 

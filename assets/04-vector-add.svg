@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-labelledby="title desc">
+  <title id="title">Scalar and vectorized thread mappings for vector addition</title>
+  <desc id="desc">The scalar kernel assigns one FP32 element to each thread. The vectorized kernel assigns four consecutive FP32 elements, or sixteen bytes, to each thread. A scalar tail handles a vector length that is not divisible by four.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+    <linearGradient id="scalarHeader" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+    <linearGradient id="vectorHeader" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#db2777"/>
+    </linearGradient>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; }
+      .idx { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .thread { font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 750; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="820" fill="#f8fafc"/>
+  <text x="64" y="62" class="sans" font-size="17" font-weight="750" fill="#0f172a" letter-spacing="0.11em">VECTOR ADDITION</text>
+  <text x="64" y="105" class="mono" font-size="28" font-weight="700" fill="#334155">out[i] = a[i] + b[i]</text>
+  <rect x="1025" y="57" width="311" height="52" rx="26" fill="#e2e8f0"/>
+  <text x="1180" y="90" text-anchor="middle" class="mono" font-size="17" font-weight="700" fill="#334155">FP32 · 4 bytes/value</text>
+
+  <g filter="url(#shadow)">
+    <rect x="64" y="148" width="586" height="440" rx="24" fill="#ffffff"/>
+    <rect x="64" y="148" width="586" height="96" rx="24" fill="url(#scalarHeader)"/>
+    <path d="M64 220H650V244H64Z" fill="url(#scalarHeader)"/>
+  </g>
+  <text x="96" y="188" class="sans" font-size="16" font-weight="750" fill="#dbeafe" letter-spacing="0.1em">SCALAR</text>
+  <text x="96" y="222" class="mono" font-size="23" font-weight="700" fill="#ffffff">1 thread → 1 value</text>
+  <rect x="476" y="171" width="142" height="48" rx="24" fill="#ffffff" fill-opacity="0.18" stroke="#ffffff" stroke-opacity="0.4"/>
+  <text x="547" y="201" text-anchor="middle" class="sans" font-size="14" font-weight="700" fill="#ffffff">4 bytes/thread</text>
+
+  <text x="96" y="283" class="sans" font-size="15" font-weight="700" fill="#475569">logical indices</text>
+  <g>
+    <rect x="96" y="306" width="62" height="72" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/><text x="127" y="348" text-anchor="middle" class="idx">0</text>
+    <rect x="164" y="306" width="62" height="72" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/><text x="195" y="348" text-anchor="middle" class="idx">1</text>
+    <rect x="232" y="306" width="62" height="72" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/><text x="263" y="348" text-anchor="middle" class="idx">2</text>
+    <rect x="300" y="306" width="62" height="72" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/><text x="331" y="348" text-anchor="middle" class="idx">3</text>
+    <rect x="368" y="306" width="62" height="72" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/><text x="399" y="348" text-anchor="middle" class="idx">4</text>
+    <rect x="436" y="306" width="62" height="72" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/><text x="467" y="348" text-anchor="middle" class="idx">5</text>
+    <rect x="504" y="306" width="62" height="72" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/><text x="535" y="348" text-anchor="middle" class="idx">6</text>
+    <rect x="572" y="306" width="46" height="72" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/><text x="595" y="348" text-anchor="middle" class="idx">7</text>
+  </g>
+  <g class="thread" text-anchor="middle" fill="#1d4ed8">
+    <text x="127" y="408">T0</text><text x="195" y="408">T1</text><text x="263" y="408">T2</text><text x="331" y="408">T3</text>
+    <text x="399" y="408">T4</text><text x="467" y="408">T5</text><text x="535" y="408">T6</text><text x="595" y="408">T7</text>
+  </g>
+  <path d="M127 386V371M195 386V371M263 386V371M331 386V371M399 386V371M467 386V371M535 386V371M595 386V371" stroke="#3b82f6" stroke-width="2"/>
+  <rect x="96" y="449" width="522" height="94" rx="16" fill="#f1f5f9"/>
+  <text x="122" y="482" class="mono" font-size="16" font-weight="700" fill="#334155">2 × 32-bit load</text>
+  <text x="122" y="513" class="mono" font-size="16" font-weight="700" fill="#334155">1 × FP32 add</text>
+  <text x="380" y="513" class="mono" font-size="16" font-weight="700" fill="#334155">1 × 32-bit store</text>
+
+  <g filter="url(#shadow)">
+    <rect x="690" y="148" width="646" height="440" rx="24" fill="#ffffff"/>
+    <rect x="690" y="148" width="646" height="96" rx="24" fill="url(#vectorHeader)"/>
+    <path d="M690 220H1336V244H690Z" fill="url(#vectorHeader)"/>
+  </g>
+  <text x="722" y="188" class="sans" font-size="16" font-weight="750" fill="#f3e8ff" letter-spacing="0.1em">VECTORIZED</text>
+  <text x="722" y="222" class="mono" font-size="23" font-weight="700" fill="#ffffff">1 thread → 4 consecutive values</text>
+  <rect x="1154" y="171" width="150" height="48" rx="24" fill="#ffffff" fill-opacity="0.18" stroke="#ffffff" stroke-opacity="0.4"/>
+  <text x="1229" y="201" text-anchor="middle" class="sans" font-size="14" font-weight="700" fill="#ffffff">16 bytes/thread</text>
+
+  <text x="722" y="283" class="sans" font-size="15" font-weight="700" fill="#475569">logical indices grouped as packets</text>
+  <g>
+    <rect x="722" y="306" width="136" height="112" rx="14" fill="#faf5ff" stroke="#c4b5fd" stroke-width="3"/>
+    <text x="790" y="335" text-anchor="middle" class="thread" fill="#6d28d9">T0 · 16 B</text>
+    <text x="740" y="383" class="idx">0</text><text x="770" y="383" class="idx">1</text><text x="800" y="383" class="idx">2</text><text x="830" y="383" class="idx">3</text>
+    <rect x="868" y="306" width="136" height="112" rx="14" fill="#faf5ff" stroke="#c4b5fd" stroke-width="3"/>
+    <text x="936" y="335" text-anchor="middle" class="thread" fill="#6d28d9">T1 · 16 B</text>
+    <text x="886" y="383" class="idx">4</text><text x="916" y="383" class="idx">5</text><text x="946" y="383" class="idx">6</text><text x="976" y="383" class="idx">7</text>
+    <rect x="1014" y="306" width="136" height="112" rx="14" fill="#fdf2f8" stroke="#f0abfc" stroke-width="3"/>
+    <text x="1082" y="335" text-anchor="middle" class="thread" fill="#a21caf">T2 · 16 B</text>
+    <text x="1029" y="383" class="idx">8</text><text x="1057" y="383" class="idx">9</text><text x="1082" y="383" class="idx">10</text><text x="1118" y="383" class="idx">11</text>
+    <rect x="1160" y="306" width="144" height="112" rx="14" fill="#fdf2f8" stroke="#f0abfc" stroke-width="3"/>
+    <text x="1232" y="335" text-anchor="middle" class="thread" fill="#a21caf">T3 · 16 B</text>
+    <text x="1174" y="383" class="idx">12</text><text x="1209" y="383" class="idx">13</text><text x="1244" y="383" class="idx">14</text><text x="1279" y="383" class="idx">15</text>
+  </g>
+  <rect x="722" y="449" width="582" height="94" rx="16" fill="#f1f5f9"/>
+  <text x="748" y="482" class="mono" font-size="16" font-weight="700" fill="#334155">2 × 128-bit load</text>
+  <text x="748" y="513" class="mono" font-size="16" font-weight="700" fill="#334155">4 × FP32 add</text>
+  <text x="1037" y="513" class="mono" font-size="16" font-weight="700" fill="#334155">1 × 128-bit store</text>
+
+  <g filter="url(#shadow)">
+    <rect x="64" y="626" width="1272" height="140" rx="22" fill="#ffffff"/>
+  </g>
+  <text x="96" y="665" class="sans" font-size="16" font-weight="750" fill="#0f172a">Tail when N = 19</text>
+  <rect x="96" y="688" width="712" height="48" rx="12" fill="#ede9fe"/>
+  <text x="452" y="718" text-anchor="middle" class="mono" font-size="16" font-weight="700" fill="#5b21b6">4 full packets · indices 0–15 · 128-bit path</text>
+  <rect x="824" y="688" width="332" height="48" rx="12" fill="#fef3c7"/>
+  <text x="990" y="718" text-anchor="middle" class="mono" font-size="16" font-weight="700" fill="#92400e">16  17  18 · scalar tail</text>
+  <rect x="1172" y="688" width="132" height="48" rx="12" fill="#f1f5f9" stroke="#cbd5e1" stroke-dasharray="5 5"/>
+  <text x="1238" y="718" text-anchor="middle" class="mono" font-size="16" fill="#64748b">19 · skip</text>
+  <text x="700" y="796" text-anchor="middle" class="sans" font-size="15" font-weight="700" fill="#475569">Vectorization changes instruction width, not the 12 bytes transferred per output element.</text>
+</svg>

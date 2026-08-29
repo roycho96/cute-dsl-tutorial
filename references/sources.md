@@ -78,7 +78,7 @@ Layout algebra, TMEM access, 1-SM and 2-SM UMMA, scale-factor Layout을 설명�
 | 01. Execution model | DSL Introduction, End-to-End Code Generation, official elementwise-add notebook |
 | 02. Shape, Stride, and Layout | CuTe Layout, Python Core API, Layout algebra notebook, Colfax Layout algebra note |
 | 03. Tensor, slicing, and tiling | CuTe Tensor and Algorithms, Python Core API, official Tensor notebooks, Simon Veitner |
-| 04. Vector addition | official elementwise-add notebook, CuTe Algorithms, Python Core API |
+| 04. Vector addition | official elementwise-add notebook, Python Core API, CUDA Programming Guide, CuTe DSL Debugging Guide |
 | 05. Warp and block reduction | CUDA Programming Guide, CuTe arch API, CUTLASS examples |
 | 06. Shared-memory transpose | CUDA Programming Guide, CuTe Algorithms, copy API and examples |
 | 07. Row-wise softmax | CUDA Programming Guide, CuTe math and arch APIs, CUTLASS examples |
