@@ -32,10 +32,10 @@ Part 1을 마치면 `(M, N):(N, 1)` 같은 Layout을 읽고, Tensor slicing과 t
 
 - [x] [04. Vector addition: scalar and vectorized kernels](book/04-vector-add.md)
 - [x] [05. Warp and block reduction](book/05-reduction.md)
-- [x] [06. Shared-memory transpose](book/06-shared-memory-transpose.md)
+- [x] [06. Shared-memory transpose and swizzle](book/06-shared-memory-transpose.md)
 - [x] [07. Row-wise softmax](book/07-row-softmax.md)
 
-Vector addition, reduction, transpose, softmax를 직접 구현합니다. Vectorized memory access, warp shuffle, shared-memory Layout, synchronization, predication, runtime loop를 필요한 시점에 도입합니다.
+Vector addition, reduction, transpose, softmax를 직접 구현합니다. Vectorized memory access, warp shuffle, shared-memory Layout과 swizzle, synchronization, predication, runtime loop를 필요한 시점에 도입합니다.
 
 ### Part 3. Building a Tensor Core GEMM
 

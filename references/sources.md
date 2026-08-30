@@ -1,6 +1,6 @@
 # References
 
-Last reviewed: 2026-08-30
+Last reviewed: 2026-08-31
 
 각 장에서 사용한 documentation, source code, paper, technical blog를 기록합니다. API와 architecture의 동작은 NVIDIA documentation과 CUTLASS source를 우선합니다. 논문과 blog는 수학적 설명, kernel 구성, 구현 사례를 보완하는 데 사용합니다.
 
@@ -83,7 +83,7 @@ Layout algebra, TMEM access, 1-SM and 2-SM UMMA, scale-factor Layout을 설명�
 | 03. Tensor, slicing, and tiling | CuTe Tensor and Algorithms, Python Core API, official Tensor notebooks, Simon Veitner |
 | 04. Vector addition | official elementwise-add notebook, Python Core API, CUDA Programming Guide, CuTe DSL Debugging Guide |
 | 05. Warp and block reduction | CUDA Programming Guide, CUDA reduction sample, CUTLASS `cta_norm.py`, `SmemAllocator` source |
-| 06. Shared-memory transpose | CUDA Programming Guide, CUDA Best Practices Guide, NVIDIA transpose article, `SmemAllocator` source |
+| 06. Shared-memory transpose and swizzle | CUDA Programming Guide, NVIDIA transpose article, CuTe `Swizzle` source, CuTe DSL GEMM example |
 | 07. Row-wise softmax | CUDA Programming Guide, CuTe math API, CUTLASS `cta_norm.py`, online normalizer paper |
 | 08~10. MMA and GEMM | official MMA guides and tutorial GEMM source |
 | 11~15. TMA and architecture | PTX ISA, Pipeline API, NVIDIA guides and notebooks |

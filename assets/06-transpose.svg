@@ -1,11 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
-  <title id="title">Shared-memory tiled matrix transpose</title>
-  <desc id="desc">Threads load rows from a global-memory tile into a padded shared-memory tile, synchronize, then read the tile with exchanged coordinates and write contiguous rows to the transposed output.</desc>
+  <title id="title">Padding and XOR swizzle for shared-memory transpose</title>
+  <desc id="desc">Two shared-memory layouts remove the bank conflict of a 32 by 32 transpose. Padding changes the row stride to 33, while swizzle maps the physical column to column XOR row.</desc>
   <defs>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.10"/>
     </filter>
-    <linearGradient id="smem" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="pad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="swizzle" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#7c3aed"/>
       <stop offset="1" stop-color="#db2777"/>
     </linearGradient>
@@ -13,84 +17,65 @@
       .sans { font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
       .mono { font-family: "JetBrains Mono", Consolas, monospace; }
       .label { font-size: 16px; font-weight: 750; }
-      .cell { font-size: 14px; font-weight: 700; }
+      .small { font-size: 14px; font-weight: 600; }
+      .cell { font-size: 13px; font-weight: 700; }
     </style>
   </defs>
 
   <rect width="1400" height="760" fill="#f8fafc"/>
-  <text x="64" y="62" class="sans" font-size="17" font-weight="750" fill="#0f172a" letter-spacing="0.11em">TILED TRANSPOSE</text>
-  <text x="64" y="105" class="mono" font-size="27" font-weight="700" fill="#334155">global row → shared tile → global row</text>
+  <text x="64" y="58" class="sans" font-size="17" font-weight="750" fill="#0f172a" letter-spacing="0.11em">SHARED-MEMORY TRANSPOSE</text>
+  <text x="64" y="101" class="mono" font-size="27" font-weight="700" fill="#334155">two conflict-free physical layouts</text>
+
+  <rect x="64" y="126" width="1272" height="74" rx="18" fill="#e2e8f0"/>
+  <text x="700" y="157" text-anchor="middle" class="mono" font-size="17" font-weight="700" fill="#334155">src[row, col] → tile[row, col] → sync_threads()</text>
+  <text x="700" y="184" text-anchor="middle" class="mono" font-size="17" font-weight="700" fill="#334155">tile[col, row] → dst[col, row]</text>
 
   <g filter="url(#shadow)">
-    <rect x="64" y="158" width="350" height="450" rx="24" fill="#ffffff"/>
+    <rect x="64" y="232" width="608" height="438" rx="24" fill="#ffffff"/>
+    <rect x="728" y="232" width="608" height="438" rx="24" fill="#ffffff"/>
   </g>
-  <text x="96" y="202" class="sans label" fill="#1d4ed8">Input tile · 32 × 32</text>
-  <text x="96" y="230" class="mono" font-size="15" fill="#475569">src[row, col]</text>
-  <g stroke="#bfdbfe" fill="#eff6ff">
-    <rect x="96" y="260" width="64" height="52"/><rect x="160" y="260" width="64" height="52"/><rect x="224" y="260" width="64" height="52"/><rect x="288" y="260" width="64" height="52"/>
-    <rect x="96" y="312" width="64" height="52"/><rect x="160" y="312" width="64" height="52"/><rect x="224" y="312" width="64" height="52"/><rect x="288" y="312" width="64" height="52"/>
-    <rect x="96" y="364" width="64" height="52"/><rect x="160" y="364" width="64" height="52"/><rect x="224" y="364" width="64" height="52"/><rect x="288" y="364" width="64" height="52"/>
-    <rect x="96" y="416" width="64" height="52"/><rect x="160" y="416" width="64" height="52"/><rect x="224" y="416" width="64" height="52"/><rect x="288" y="416" width="64" height="52"/>
-  </g>
-  <g class="mono cell" text-anchor="middle" fill="#1e40af">
-    <text x="128" y="292">0,0</text><text x="192" y="292">0,1</text><text x="256" y="292">0,2</text><text x="320" y="292">…</text>
-    <text x="128" y="344">1,0</text><text x="192" y="344">1,1</text><text x="256" y="344">1,2</text><text x="320" y="344">…</text>
-    <text x="128" y="396">2,0</text><text x="192" y="396">2,1</text><text x="256" y="396">2,2</text><text x="320" y="396">…</text>
-    <text x="128" y="448">…</text><text x="192" y="448">…</text><text x="256" y="448">…</text><text x="320" y="448">…</text>
-  </g>
-  <rect x="96" y="510" width="256" height="60" rx="12" fill="#dbeafe"/>
-  <text x="224" y="536" text-anchor="middle" class="sans label" fill="#1e40af">coalesced load</text>
-  <text x="224" y="558" text-anchor="middle" class="mono" font-size="14" fill="#1d4ed8">adjacent tx → adjacent col</text>
 
-  <path d="M424 374H492" stroke="#38bdf8" stroke-width="4"/>
-  <text x="458" y="354" text-anchor="middle" class="mono" font-size="14" font-weight="700" fill="#0369a1">GMEM → SMEM</text>
+  <rect x="64" y="232" width="608" height="88" rx="24" fill="url(#pad)"/>
+  <path d="M64 296H672V320H64Z" fill="url(#pad)"/>
+  <text x="96" y="270" class="sans" font-size="15" font-weight="750" fill="#dbeafe" letter-spacing="0.08em">METHOD 1 · PADDING</text>
+  <text x="96" y="302" class="mono" font-size="21" font-weight="700" fill="#ffffff">(32, 33):(33, 1)</text>
 
-  <g filter="url(#shadow)">
-    <rect x="502" y="134" width="396" height="500" rx="24" fill="#ffffff"/>
-    <rect x="502" y="134" width="396" height="96" rx="24" fill="url(#smem)"/>
-    <path d="M502 206H898V230H502Z" fill="url(#smem)"/>
+  <text x="96" y="356" class="sans label" fill="#1d4ed8">One unused FP32 value after every row</text>
+  <g transform="translate(96 380)" stroke="#93c5fd" fill="#eff6ff">
+    <rect x="0" y="0" width="92" height="48"/><rect x="92" y="0" width="92" height="48"/><rect x="184" y="0" width="92" height="48"/><rect x="276" y="0" width="92" height="48"/><rect x="368" y="0" width="104" height="48" fill="#cffafe"/>
+    <rect x="0" y="48" width="92" height="48"/><rect x="92" y="48" width="92" height="48"/><rect x="184" y="48" width="92" height="48"/><rect x="276" y="48" width="92" height="48"/><rect x="368" y="48" width="104" height="48" fill="#cffafe"/>
+    <rect x="0" y="96" width="92" height="48"/><rect x="92" y="96" width="92" height="48"/><rect x="184" y="96" width="92" height="48"/><rect x="276" y="96" width="92" height="48"/><rect x="368" y="96" width="104" height="48" fill="#cffafe"/>
   </g>
-  <text x="534" y="176" class="sans" font-size="15" font-weight="750" fill="#f3e8ff" letter-spacing="0.08em">SHARED MEMORY</text>
-  <text x="534" y="210" class="mono" font-size="22" font-weight="700" fill="#ffffff">(32, 33):(33, 1)</text>
-  <text x="534" y="268" class="sans label" fill="#6b21a8">32 data columns + 1 padding column</text>
-  <g stroke="#d8b4fe" fill="#faf5ff">
-    <rect x="534" y="294" width="70" height="54"/><rect x="604" y="294" width="70" height="54"/><rect x="674" y="294" width="70" height="54"/><rect x="744" y="294" width="70" height="54"/><rect x="814" y="294" width="52" height="54" fill="#fce7f3"/>
-    <rect x="534" y="348" width="70" height="54"/><rect x="604" y="348" width="70" height="54"/><rect x="674" y="348" width="70" height="54"/><rect x="744" y="348" width="70" height="54"/><rect x="814" y="348" width="52" height="54" fill="#fce7f3"/>
-    <rect x="534" y="402" width="70" height="54"/><rect x="604" y="402" width="70" height="54"/><rect x="674" y="402" width="70" height="54"/><rect x="744" y="402" width="70" height="54"/><rect x="814" y="402" width="52" height="54" fill="#fce7f3"/>
+  <g transform="translate(96 380)" class="mono cell" text-anchor="middle" fill="#1e40af">
+    <text x="46" y="30">0,0</text><text x="138" y="30">0,1</text><text x="230" y="30">0,2</text><text x="322" y="30">…</text><text x="420" y="30" fill="#0e7490">pad</text>
+    <text x="46" y="78">1,0</text><text x="138" y="78">1,1</text><text x="230" y="78">1,2</text><text x="322" y="78">…</text><text x="420" y="78" fill="#0e7490">pad</text>
+    <text x="46" y="126">2,0</text><text x="138" y="126">2,1</text><text x="230" y="126">2,2</text><text x="322" y="126">…</text><text x="420" y="126" fill="#0e7490">pad</text>
   </g>
-  <g class="mono cell" text-anchor="middle" fill="#7e22ce">
-    <text x="569" y="328">0,0</text><text x="639" y="328">0,1</text><text x="709" y="328">0,2</text><text x="779" y="328">…</text><text x="840" y="328" fill="#be185d">pad</text>
-    <text x="569" y="382">1,0</text><text x="639" y="382">1,1</text><text x="709" y="382">1,2</text><text x="779" y="382">…</text><text x="840" y="382" fill="#be185d">pad</text>
-    <text x="569" y="436">2,0</text><text x="639" y="436">2,1</text><text x="709" y="436">2,2</text><text x="779" y="436">…</text><text x="840" y="436" fill="#be185d">pad</text>
-  </g>
-  <rect x="534" y="492" width="332" height="92" rx="14" fill="#f5f3ff"/>
-  <text x="700" y="523" text-anchor="middle" class="mono" font-size="15" font-weight="700" fill="#6d28d9">sync_threads()</text>
-  <text x="700" y="549" text-anchor="middle" class="sans" font-size="14" font-weight="650" fill="#475569">all stores finish before transposed reads</text>
-  <text x="700" y="571" text-anchor="middle" class="mono" font-size="14" fill="#7e22ce">tile[tx, ty + offset]</text>
 
-  <path d="M908 374H976" stroke="#ec4899" stroke-width="4"/>
-  <text x="942" y="354" text-anchor="middle" class="mono" font-size="14" font-weight="700" fill="#be185d">SMEM → GMEM</text>
+  <rect x="96" y="548" width="544" height="52" rx="12" fill="#eff6ff"/>
+  <text x="368" y="580" text-anchor="middle" class="mono" font-size="16" font-weight="700" fill="#1e40af">bank = (tx × 33 + col) mod 32</text>
+  <text x="96" y="632" class="sans small" fill="#475569">32 unique banks · 4,224 bytes per tile</text>
 
-  <g filter="url(#shadow)">
-    <rect x="986" y="158" width="350" height="450" rx="24" fill="#ffffff"/>
-  </g>
-  <text x="1018" y="202" class="sans label" fill="#be185d">Output tile · 32 × 32</text>
-  <text x="1018" y="230" class="mono" font-size="15" fill="#475569">dst[col, row]</text>
-  <g stroke="#fbcfe8" fill="#fdf2f8">
-    <rect x="1018" y="260" width="64" height="52"/><rect x="1082" y="260" width="64" height="52"/><rect x="1146" y="260" width="64" height="52"/><rect x="1210" y="260" width="64" height="52"/>
-    <rect x="1018" y="312" width="64" height="52"/><rect x="1082" y="312" width="64" height="52"/><rect x="1146" y="312" width="64" height="52"/><rect x="1210" y="312" width="64" height="52"/>
-    <rect x="1018" y="364" width="64" height="52"/><rect x="1082" y="364" width="64" height="52"/><rect x="1146" y="364" width="64" height="52"/><rect x="1210" y="364" width="64" height="52"/>
-    <rect x="1018" y="416" width="64" height="52"/><rect x="1082" y="416" width="64" height="52"/><rect x="1146" y="416" width="64" height="52"/><rect x="1210" y="416" width="64" height="52"/>
-  </g>
-  <g class="mono cell" text-anchor="middle" fill="#9d174d">
-    <text x="1050" y="292">0,0</text><text x="1114" y="292">1,0</text><text x="1178" y="292">2,0</text><text x="1242" y="292">…</text>
-    <text x="1050" y="344">0,1</text><text x="1114" y="344">1,1</text><text x="1178" y="344">2,1</text><text x="1242" y="344">…</text>
-    <text x="1050" y="396">0,2</text><text x="1114" y="396">1,2</text><text x="1178" y="396">2,2</text><text x="1242" y="396">…</text>
-    <text x="1050" y="448">…</text><text x="1114" y="448">…</text><text x="1178" y="448">…</text><text x="1242" y="448">…</text>
-  </g>
-  <rect x="1018" y="510" width="256" height="60" rx="12" fill="#fce7f3"/>
-  <text x="1146" y="536" text-anchor="middle" class="sans label" fill="#9d174d">coalesced store</text>
-  <text x="1146" y="558" text-anchor="middle" class="mono" font-size="14" fill="#be185d">adjacent tx → adjacent out_col</text>
+  <rect x="728" y="232" width="608" height="88" rx="24" fill="url(#swizzle)"/>
+  <path d="M728 296H1336V320H728Z" fill="url(#swizzle)"/>
+  <text x="760" y="270" class="sans" font-size="15" font-weight="750" fill="#f3e8ff" letter-spacing="0.08em">METHOD 2 · XOR SWIZZLE</text>
+  <text x="760" y="302" class="mono" font-size="21" font-weight="700" fill="#ffffff">Swizzle&lt;5,0,5&gt; ○ (32, 32):(32, 1)</text>
 
-  <text x="700" y="701" text-anchor="middle" class="sans" font-size="15" font-weight="700" fill="#475569">The 33-element row stride changes the shared-memory bank for each successive row.</text>
+  <text x="760" y="356" class="sans label" fill="#7e22ce">Logical coordinate → physical column</text>
+  <g transform="translate(760 380)" stroke="#d8b4fe" fill="#faf5ff">
+    <rect x="0" y="0" width="118" height="48"/><rect x="118" y="0" width="118" height="48"/><rect x="236" y="0" width="118" height="48"/><rect x="354" y="0" width="118" height="48"/>
+    <rect x="0" y="48" width="118" height="48"/><rect x="118" y="48" width="118" height="48"/><rect x="236" y="48" width="118" height="48"/><rect x="354" y="48" width="118" height="48"/>
+    <rect x="0" y="96" width="118" height="48"/><rect x="118" y="96" width="118" height="48"/><rect x="236" y="96" width="118" height="48"/><rect x="354" y="96" width="118" height="48"/>
+  </g>
+  <g transform="translate(760 380)" class="mono cell" text-anchor="middle" fill="#7e22ce">
+    <text x="59" y="30">r0: c0→0</text><text x="177" y="30">c1→1</text><text x="295" y="30">c2→2</text><text x="413" y="30">c3→3</text>
+    <text x="59" y="78">r1: c0→1</text><text x="177" y="78">c1→0</text><text x="295" y="78">c2→3</text><text x="413" y="78">c3→2</text>
+    <text x="59" y="126">r2: c0→2</text><text x="177" y="126">c1→3</text><text x="295" y="126">c2→0</text><text x="413" y="126">c3→1</text>
+  </g>
+
+  <rect x="760" y="548" width="544" height="52" rx="12" fill="#f5f3ff"/>
+  <text x="1032" y="580" text-anchor="middle" class="mono" font-size="16" font-weight="700" fill="#7e22ce">physical_col = col XOR row</text>
+  <text x="760" y="632" class="sans small" fill="#475569">32 unique banks · 4,096 bytes per tile</text>
+
+  <text x="700" y="718" text-anchor="middle" class="sans" font-size="15" font-weight="700" fill="#475569">The kernel uses the same logical coordinates; the Layout computes different physical offsets.</text>
 </svg>
