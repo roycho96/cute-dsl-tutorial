@@ -50,6 +50,16 @@ TMA, `mbarrier`, WGMMA, `tcgen05`, thread block cluster, memory ordering은 DSL 
 - [CUTLASS Python DSL Infrastructure](https://llvm.org/devmtg/2025-10/slides/technical_talks/ozen.pdf)
 - [DSLs for LLM Kernels](https://hc2025.hotchips.org/assets/program/tutorials/dsl_llm_kernels.pdf)
 
+## FlashAttention
+
+- [FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness](https://arxiv.org/abs/2205.14135)
+- [FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning](https://arxiv.org/abs/2307.08691)
+- [FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision](https://arxiv.org/abs/2407.08608)
+- [FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling](https://arxiv.org/abs/2603.05451)
+- [FlashAttention-4 CuTe DSL source](https://github.com/Dao-AILab/flash-attention/tree/29e40cfc420da5cbf2d97a1c273483e0f04b57b2/flash_attn/cute)
+
+FA1부터 FA4까지 같은 attention 연산을 구현하되, 각 논문에서 바뀐 algorithm, work partitioning, asynchronous pipeline, architecture-specific dataflow를 구분해 적용합니다. CuTe DSL API와 kernel 구성은 현재 FA4 source를 기준으로 확인합니다.
+
 ## Colfax Research
 
 - [A note on the algebra of CuTe Layouts](https://research.colfax-intl.com/wp-content/uploads/2024/01/layout_algebra.pdf)
@@ -87,7 +97,9 @@ Layout algebra, TMEM access, 1-SM and 2-SM UMMA, scale-factor Layout을 설명�
 | 07. Row-wise softmax | CUDA Programming Guide, CuTe math API, CUTLASS `cta_norm.py`, online normalizer paper |
 | 08~10. MMA and GEMM | official MMA guides and tutorial GEMM source |
 | 11~15. TMA and architecture | PTX ISA, Pipeline API, NVIDIA guides and notebooks |
-| 16~18. Complete kernels | CUTLASS examples and tests, Colfax Research, Nsight documentation |
+| 16~17. Complete GEMM kernels | CUTLASS examples and tests, Colfax Research, Nsight documentation |
+| 18~21. FlashAttention | FA1~FA4 papers, official FlashAttention-4 CuTe DSL source, CUTLASS attention examples |
+| 22. Grouped GEMM and MoE | CUTLASS grouped GEMM examples, Nsight documentation, model-derived expert shapes |
 
 ## Figures
 

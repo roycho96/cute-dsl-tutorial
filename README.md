@@ -1,6 +1,6 @@
 # CuTe DSL Tutorial
 
-CUDA kernel을 작성해 본 독자를 위한 한국어 CuTe DSL 교재입니다. 목표는 CuTe의 출력에서 `Shape:Stride`를 읽고, thread와 data의 mapping을 추적하고, elementwise kernel과 reduction에서 Blackwell GEMM까지 직접 구현하는 것입니다.
+CUDA kernel을 작성해 본 독자를 위한 한국어 CuTe DSL 교재입니다. 목표는 CuTe의 출력에서 `Shape:Stride`를 읽고, thread와 data의 mapping을 추적하고, elementwise kernel과 reduction에서 Blackwell GEMM, FlashAttention, grouped MoE kernel까지 직접 구현하는 것입니다.
 
 Part 1에서 `Shape`, `Layout`, `Tensor`를 세 장 안에 정리합니다. Part 2부터는 매 장마다 실행 가능한 kernel을 확장하면서 새로운 개념을 도입합니다. Layout algebra는 실제 코드에 필요한 순서로 설명하고, 세부 연산은 부록에 모읍니다.
 
@@ -55,13 +55,27 @@ Part 2에서 사용한 thread partitioning, vectorized memory access, shared-mem
 
 Part 3의 GEMM에 TMA pipeline과 Hopper·Blackwell instruction을 차례로 적용합니다. 두 architecture에서 memory와 execution model이 어떻게 달라지는지 code로 비교합니다.
 
-### Part 5. Complete kernels
+### Part 5. Complete GEMM kernels
 
 - [ ] 16. Blackwell GEMM end to end
 - [ ] 17. NVFP4 block-scaled GEMM
-- [ ] 18. Grouped GEMM and MoE case study
 
-앞에서 만든 구성 요소를 완전한 kernel로 조립하고, dense GEMM에서 block-scaled GEMM과 grouped GEMM으로 범위를 넓힙니다.
+앞에서 만든 구성 요소를 완전한 dense GEMM으로 조립한 뒤 NVFP4 block scaling을 적용합니다.
+
+### Part 6. FlashAttention in CuTe DSL
+
+- [ ] 18. FlashAttention-1: IO-aware tiling and online softmax
+- [ ] 19. FlashAttention-2: work partitioning and sequence-dimension parallelism
+- [ ] 20. FlashAttention-3: Hopper asynchronous pipeline
+- [ ] 21. FlashAttention-4: Blackwell pipeline and conditional rescaling
+
+네 장은 같은 Q/K/V interface와 correctness test를 사용합니다. FA1에서 attention matrix를 저장하지 않는 tiled forward를 구현하고, FA2의 thread-block·warp partitioning, FA3의 TMA·WGMMA pipeline, FA4의 TMEM·asynchronous MMA, software-emulated exponential과 conditional rescaling을 차례로 반영합니다. 코드는 현재 FlashAttention-4와 같은 CuTe DSL 구성 방식을 사용하되, 각 장에서 한 세대의 핵심 변화만 추가합니다.
+
+### Part 7. Grouped kernels and MoE
+
+- [ ] 22. Grouped GEMM and MoE case study
+
+Dense kernel에서 여러 expert의 서로 다른 token 수를 처리하는 grouped scheduling으로 확장하고, routing 결과가 GEMM shape와 load balancing에 미치는 영향을 확인합니다.
 
 ### Appendices
 

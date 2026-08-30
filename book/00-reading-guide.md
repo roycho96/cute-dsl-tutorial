@@ -10,6 +10,8 @@ CuTe DSL은 Python 문법으로 GPU kernel을 작성하는 DSL입니다. PyTorch
 4. GMEM, SMEM, RMEM 사이에서 data가 이동하는 과정을 추적합니다.
 5. TMA와 Tensor Core를 multistage pipeline으로 연결해 GEMM을 완성합니다.
 6. 앞에서 만든 GEMM을 Hopper와 Blackwell의 instruction으로 확장합니다.
+7. 같은 attention forward를 FA1부터 FA4까지 단계적으로 개선합니다.
+8. Dense GEMM을 grouped scheduling과 MoE expert shape로 확장합니다.
 
 ## 필요한 CUDA 지식
 
