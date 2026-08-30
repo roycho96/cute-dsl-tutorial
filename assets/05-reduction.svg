@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">Warp and block reduction</title>
+  <desc id="desc">A shuffle tree reduces 32 lane values to one warp sum. Eight warp sums are written to shared memory and reduced by the first warp to one block sum.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <linearGradient id="warpHead" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="blockHead" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#db2777"/>
+    </linearGradient>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+      .mono { font-family: "JetBrains Mono", Consolas, monospace; }
+      .small { font-size: 15px; font-weight: 650; }
+      .label { font-size: 17px; font-weight: 750; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="760" fill="#f8fafc"/>
+  <text x="64" y="62" class="sans" font-size="17" font-weight="750" fill="#0f172a" letter-spacing="0.11em">REDUCTION</text>
+  <text x="64" y="105" class="mono" font-size="27" font-weight="700" fill="#334155">32 lanes → warp sum · 8 warps → block sum</text>
+
+  <g filter="url(#shadow)">
+    <rect x="64" y="145" width="760" height="520" rx="24" fill="#ffffff"/>
+    <rect x="64" y="145" width="760" height="92" rx="24" fill="url(#warpHead)"/>
+    <path d="M64 213H824V237H64Z" fill="url(#warpHead)"/>
+  </g>
+  <text x="96" y="184" class="sans" font-size="15" font-weight="750" fill="#dbeafe" letter-spacing="0.1em">WARP REDUCTION</text>
+  <text x="96" y="217" class="mono" font-size="22" font-weight="700" fill="#ffffff">shuffle_sync_down(value, offset)</text>
+
+  <text x="98" y="280" class="sans label" fill="#334155">lane registers</text>
+  <g class="mono" font-size="16" font-weight="700" text-anchor="middle">
+    <rect x="98" y="302" width="76" height="54" rx="10" fill="#eff6ff" stroke="#93c5fd"/><text x="136" y="336" fill="#1d4ed8">L0</text>
+    <rect x="186" y="302" width="76" height="54" rx="10" fill="#eff6ff" stroke="#93c5fd"/><text x="224" y="336" fill="#1d4ed8">L1</text>
+    <rect x="274" y="302" width="76" height="54" rx="10" fill="#eff6ff" stroke="#93c5fd"/><text x="312" y="336" fill="#1d4ed8">L2</text>
+    <rect x="362" y="302" width="76" height="54" rx="10" fill="#eff6ff" stroke="#93c5fd"/><text x="400" y="336" fill="#1d4ed8">L3</text>
+    <text x="470" y="336" fill="#64748b">…</text>
+    <rect x="510" y="302" width="88" height="54" rx="10" fill="#eff6ff" stroke="#93c5fd"/><text x="554" y="336" fill="#1d4ed8">L30</text>
+    <rect x="610" y="302" width="88" height="54" rx="10" fill="#eff6ff" stroke="#93c5fd"/><text x="654" y="336" fill="#1d4ed8">L31</text>
+  </g>
+
+  <path d="M136 374V404H654V374" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+  <text x="376" y="397" class="mono small" text-anchor="middle" fill="#0369a1">offset 16</text>
+  <path d="M180 430V460H610V430" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+  <text x="394" y="453" class="mono small" text-anchor="middle" fill="#0369a1">offset 8</text>
+  <path d="M224 486V516H566V486" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+  <text x="394" y="509" class="mono small" text-anchor="middle" fill="#0369a1">offset 4 → 2 → 1</text>
+
+  <rect x="98" y="551" width="600" height="76" rx="14" fill="#ecfeff" stroke="#67e8f9"/>
+  <text x="128" y="582" class="sans small" fill="#155e75">lane 0 receives the complete sum</text>
+  <text x="128" y="608" class="mono" font-size="16" font-weight="700" fill="#0e7490">v0 + v1 + … + v31</text>
+
+  <g filter="url(#shadow)">
+    <rect x="864" y="145" width="472" height="520" rx="24" fill="#ffffff"/>
+    <rect x="864" y="145" width="472" height="92" rx="24" fill="url(#blockHead)"/>
+    <path d="M864 213H1336V237H864Z" fill="url(#blockHead)"/>
+  </g>
+  <text x="896" y="184" class="sans" font-size="15" font-weight="750" fill="#f3e8ff" letter-spacing="0.1em">BLOCK REDUCTION</text>
+  <text x="896" y="217" class="mono" font-size="22" font-weight="700" fill="#ffffff">8 warps · 256 threads</text>
+
+  <text x="896" y="278" class="sans label" fill="#334155">1. each warp writes one sum</text>
+  <g class="mono" font-size="15" font-weight="700" text-anchor="middle">
+    <rect x="896" y="300" width="48" height="48" rx="8" fill="#f5f3ff" stroke="#c4b5fd"/><text x="920" y="330" fill="#6d28d9">W0</text>
+    <rect x="950" y="300" width="48" height="48" rx="8" fill="#f5f3ff" stroke="#c4b5fd"/><text x="974" y="330" fill="#6d28d9">W1</text>
+    <rect x="1004" y="300" width="48" height="48" rx="8" fill="#f5f3ff" stroke="#c4b5fd"/><text x="1028" y="330" fill="#6d28d9">W2</text>
+    <rect x="1058" y="300" width="48" height="48" rx="8" fill="#f5f3ff" stroke="#c4b5fd"/><text x="1082" y="330" fill="#6d28d9">W3</text>
+    <text x="1128" y="330" fill="#64748b">…</text>
+    <rect x="1150" y="300" width="48" height="48" rx="8" fill="#f5f3ff" stroke="#c4b5fd"/><text x="1174" y="330" fill="#6d28d9">W6</text>
+    <rect x="1204" y="300" width="48" height="48" rx="8" fill="#f5f3ff" stroke="#c4b5fd"/><text x="1228" y="330" fill="#6d28d9">W7</text>
+  </g>
+
+  <path d="M1074 365V404" stroke="#a855f7" stroke-width="3"/>
+  <rect x="896" y="402" width="356" height="72" rx="14" fill="#faf5ff" stroke="#d8b4fe"/>
+  <text x="1074" y="432" text-anchor="middle" class="sans small" fill="#6b21a8">shared memory</text>
+  <text x="1074" y="458" text-anchor="middle" class="mono" font-size="16" font-weight="700" fill="#7e22ce">scratch[0:8]</text>
+
+  <text x="896" y="517" class="sans label" fill="#334155">2. warp 0 reduces eight sums</text>
+  <path d="M1074 536V566" stroke="#ec4899" stroke-width="3"/>
+  <rect x="950" y="566" width="248" height="64" rx="14" fill="#fdf2f8" stroke="#f9a8d4"/>
+  <text x="1074" y="591" text-anchor="middle" class="sans small" fill="#9d174d">block sum</text>
+  <text x="1074" y="616" text-anchor="middle" class="mono" font-size="16" font-weight="700" fill="#be185d">scratch[8]</text>
+
+  <text x="700" y="718" text-anchor="middle" class="sans" font-size="15" font-weight="700" fill="#475569">Warp shuffle handles register exchange; shared memory connects the eight warps in a block.</text>
+</svg>

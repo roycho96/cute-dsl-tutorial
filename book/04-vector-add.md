@@ -54,10 +54,11 @@ def scalar_vector_add(
     b: cute.Tensor,
     out: cute.Tensor,
 ):
+    # One thread handles one value, so N values need ceil_div(N, 256) blocks.
     blocks = cute.ceil_div(cute.size(out), THREADS)
     scalar_vector_add_kernel(a, b, out).launch(
-        grid=(blocks, 1, 1),  # (x, y, z): one-dimensional grid
-        block=(THREADS, 1, 1),  # (x, y, z): one-dimensional block
+        grid=(blocks, 1, 1),  # x: groups of 256 values; y and z are unused
+        block=(THREADS, 1, 1),  # x: 256 threads, one value per thread
     )
 ```
 
@@ -181,15 +182,26 @@ def vectorized_vector_add(
     packets_b = cute.zipped_divide(b, (VALUES_PER_THREAD,))
     packets_out = cute.zipped_divide(out, (VALUES_PER_THREAD,))
     size = cute.size(out)
+    # One thread handles four values, so N values need ceil_div(N, 4) threads.
     packets = cute.ceil_div(size, VALUES_PER_THREAD)
+    # Group those packet-processing threads into blocks of 256.
     blocks = cute.ceil_div(packets, THREADS)
     vectorized_vector_add_kernel(packets_a, packets_b, packets_out, size).launch(
-        grid=(blocks, 1, 1),  # (x, y, z): one-dimensional grid
-        block=(THREADS, 1, 1),  # (x, y, z): one-dimensional block
+        grid=(blocks, 1, 1),  # x: groups of 256 packets; y and z are unused
+        block=(THREADS, 1, 1),  # x: 256 threads, four values per thread
     )
 ```
 
 Scalar version에서는 thread가 element 하나를 담당했습니다. 여기서는 thread가 packet 하나를 담당하므로 launch할 thread 수를 `ceil_div(N, 4)`에서 계산합니다.
+
+`N = 4099`라면 계산 결과는 다음과 같습니다.
+
+```text
+packets = ceil_div(4099, 4)    = 1025
+blocks  = ceil_div(1025, 256)  = 5
+```
+
+마지막으로 유효한 `packet_idx=1024`가 index `4096, 4097, 4098`을 scalar tail path에서 처리합니다. 그보다 큰 `packet_idx`를 받은 thread는 아무 값도 읽거나 쓰지 않습니다.
 
 ## 3. Compile하고 실행하기
 

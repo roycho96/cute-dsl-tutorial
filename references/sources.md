@@ -1,6 +1,6 @@
 # References
 
-Last reviewed: 2026-08-29
+Last reviewed: 2026-08-30
 
 각 장에서 사용한 documentation, source code, paper, technical blog를 기록합니다. API와 architecture의 동작은 NVIDIA documentation과 CUTLASS source를 우선합니다. 논문과 blog는 수학적 설명, kernel 구성, 구현 사례를 보완하는 데 사용합니다.
 
@@ -35,6 +35,8 @@ Python DSL과 C++ CuTe는 syntax가 다르지만 `Layout`과 `Tensor`의 정의�
 ## CUDA and PTX
 
 - [CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/)
+- [CUDA C++ Best Practices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/)
+- [CUDA Samples: Reduction](https://github.com/NVIDIA/cuda-samples/tree/master/Samples/2_Concepts_and_Techniques/reduction)
 - [Parallel Thread Execution ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/)
 - [Hopper Tuning Guide](https://docs.nvidia.com/cuda/hopper-tuning-guide/)
 - [Blackwell Tuning Guide](https://docs.nvidia.com/cuda/blackwell-tuning-guide/)
@@ -44,6 +46,7 @@ TMA, `mbarrier`, WGMMA, `tcgen05`, thread block cluster, memory ordering은 DSL 
 ## NVIDIA technical articles and talks
 
 - [Achieve CUTLASS C++ Performance with Python APIs Using CuTe DSL](https://developer.nvidia.com/blog/achieve-cutlass-c-performance-with-python-apis-using-cute-dsl/)
+- [An Efficient Matrix Transpose in CUDA C/C++](https://developer.nvidia.com/blog/efficient-matrix-transpose-cuda-cc/)
 - [CUTLASS Python DSL Infrastructure](https://llvm.org/devmtg/2025-10/slides/technical_talks/ozen.pdf)
 - [DSLs for LLM Kernels](https://hc2025.hotchips.org/assets/program/tutorials/dsl_llm_kernels.pdf)
 
@@ -79,9 +82,9 @@ Layout algebra, TMEM access, 1-SM and 2-SM UMMA, scale-factor Layout을 설명�
 | 02. Shape, Stride, and Layout | CuTe Layout, Python Core API, Layout algebra notebook, Colfax Layout algebra note |
 | 03. Tensor, slicing, and tiling | CuTe Tensor and Algorithms, Python Core API, official Tensor notebooks, Simon Veitner |
 | 04. Vector addition | official elementwise-add notebook, Python Core API, CUDA Programming Guide, CuTe DSL Debugging Guide |
-| 05. Warp and block reduction | CUDA Programming Guide, CuTe arch API, CUTLASS examples |
-| 06. Shared-memory transpose | CUDA Programming Guide, CuTe Algorithms, copy API and examples |
-| 07. Row-wise softmax | CUDA Programming Guide, CuTe math and arch APIs, CUTLASS examples |
+| 05. Warp and block reduction | CUDA Programming Guide, CUDA reduction sample, CUTLASS `cta_norm.py`, `SmemAllocator` source |
+| 06. Shared-memory transpose | CUDA Programming Guide, CUDA Best Practices Guide, NVIDIA transpose article, `SmemAllocator` source |
+| 07. Row-wise softmax | CUDA Programming Guide, CuTe math API, CUTLASS `cta_norm.py`, online normalizer paper |
 | 08~10. MMA and GEMM | official MMA guides and tutorial GEMM source |
 | 11~15. TMA and architecture | PTX ISA, Pipeline API, NVIDIA guides and notebooks |
 | 16~18. Complete kernels | CUTLASS examples and tests, Colfax Research, Nsight documentation |
