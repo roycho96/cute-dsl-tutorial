@@ -86,7 +86,17 @@ def as_cute_tensor(tensor: torch.Tensor) -> cute.Tensor:
 
 ### Packet Layout
 
-`zipped_divide()`는 1D Tensor를 packet 내부 위치와 packet 번호로 나눕니다.
+원래 Tensor `a`의 Layout이 `(N):(1)`이면 coordinate `i`는 그대로 `a[i]`의 offset입니다. Packet 크기를 4로 정하면 같은 index를 두 값으로 나눌 수 있습니다.
+
+```text
+packet_idx = i // 4
+lane       = i % 4
+i          = lane + 4 × packet_idx
+```
+
+여기서 `lane`은 warp lane ID가 아니라 packet 안의 위치 `0, 1, 2, 3`을 뜻합니다. 예를 들어 `i = 6`은 두 번째 packet의 세 번째 값이므로 `(lane=2, packet_idx=1)`이 됩니다.
+
+`zipped_divide()`가 이 coordinate 변환을 Layout에 적용합니다.
 
 ```python
 packets_a = cute.zipped_divide(a, (VALUES_PER_THREAD,))
@@ -98,11 +108,32 @@ packets_a = cute.zipped_divide(a, (VALUES_PER_THREAD,))
 ((4),(?)):((1),(4))
 ```
 
-첫 번째 mode는 packet 안의 `lane`, 두 번째 mode는 `packet_idx`입니다.
+변환된 Layout은 다음과 같이 읽습니다.
 
-```text
-original index = lane + 4 × packet_idx
+| Layout 항목 | 의미 |
+|---|---|
+| 첫 번째 shape `(4)` | packet 안에 네 값이 있습니다. |
+| 첫 번째 stride `(1)` | `lane`이 1 증가하면 원래 offset도 1 증가합니다. |
+| 두 번째 shape `(?)` | packet 수는 runtime의 `N`에서 결정됩니다. |
+| 두 번째 stride `(4)` | `packet_idx`가 1 증가하면 원래 offset은 4 증가합니다. |
+
+따라서 coordinate는 다음처럼 대응합니다.
+
+| 원래 index `i` | Packet coordinate | CuTe access |
+|---:|---:|---|
+| 0 | `(0, 0)` | `packets_a[(0, 0)]` |
+| 3 | `(3, 0)` | `packets_a[(3, 0)]` |
+| 4 | `(0, 1)` | `packets_a[(0, 1)]` |
+| 6 | `(2, 1)` | `packets_a[(2, 1)]` |
+
+Integer로 두 mode를 모두 선택하면 값 하나를 얻습니다. 첫 번째 coordinate에 `None`을 쓰면 packet 내부 mode를 남긴 Tensor view를 얻습니다.
+
+```python
+packets_a[(2, 1)]     # a[6]
+packets_a[(None, 1)]  # a[4:8]에 대응하는 네 값의 view
 ```
+
+`N`이 4의 배수가 아니면 마지막 packet의 일부 coordinate는 allocation 밖을 가리킵니다. 예를 들어 `N = 10`이면 마지막 packet은 index `8, 9, 10, 11`에 대응하지만 `8, 9`만 유효합니다. 아래 kernel이 완전한 packet과 tail을 나누는 이유입니다.
 
 ### Vectorized kernel
 
