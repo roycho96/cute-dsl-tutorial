@@ -20,6 +20,8 @@ Last reviewed: 2026-08-31
   - `Layout`, `Tensor`, partitioning, copy, MMA
 - [MMA Programming Guides](https://docs.nvidia.com/cutlass/latest/media/docs/pythonDSL/guides/mma/index.html)
   - warp MMA, WGMMA, `tcgen05`
+- [Warp-level Matrix Multiply-Accumulate Programming](https://docs.nvidia.com/cutlass/latest/media/docs/pythonDSL/mma_docs/wmma_programming.html)
+  - `MmaF16BF16Op`, MMA atom, multi-warp `TiledMMA`, operand fragment
 - [Debugging Guide](https://docs.nvidia.com/cutlass/latest/media/docs/pythonDSL/guides/debugging.html)
   - IR, PTX, CUBIN, SASS, Compute Sanitizer
 
@@ -95,7 +97,9 @@ Layout algebra, TMEM access, 1-SM and 2-SM UMMA, scale-factor Layout을 설명�
 | 05. Warp and block reduction | CUDA Programming Guide, CUDA reduction sample, CUTLASS `cta_norm.py`, `SmemAllocator` source |
 | 06. Shared-memory transpose and swizzle | CUDA Programming Guide, NVIDIA transpose article, CuTe `Swizzle` source, CuTe DSL GEMM example |
 | 07. Row-wise softmax | CUDA Programming Guide, CuTe math API, CUTLASS `cta_norm.py`, online normalizer paper |
-| 08~10. MMA and GEMM | official MMA guides and tutorial GEMM source |
+| 08. MMA atom and TiledMMA | warp MMA programming guide, PTX `mma.sync`, CuTe `atom.py`, Veitner MMA atom article |
+| 09. First Tensor Core GEMM | CUTLASS Ampere `tensorop_gemm.py`, CuTe GEMM tutorial, PTX `ldmatrix` |
+| 10. Multistage GEMM and epilogue | CUTLASS Ampere `tensorop_gemm.py`, `cp.async` API and PTX, CuTe Tensor algorithms |
 | 11~15. TMA and architecture | PTX ISA, Pipeline API, NVIDIA guides and notebooks |
 | 16~17. Complete GEMM kernels | CUTLASS examples and tests, Colfax Research, Nsight documentation |
 | 18~21. FlashAttention | FA1~FA4 papers, official FlashAttention-4 CuTe DSL source, CUTLASS attention examples |

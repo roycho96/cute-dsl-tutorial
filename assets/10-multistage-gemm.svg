@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Three-stage cp async GEMM pipeline and epilogue</title>
+  <desc id="desc">Three shared-memory stages rotate through K tiles so cp async copies overlap Tensor Core computation, followed by a shared-memory epilogue and vectorized global store.</desc>
+  <defs>
+    <style>
+      text{font-family:NanumGothic,sans-serif}.title{font-size:30px;font-weight:700;fill:#111827}.heading{font-size:19px;font-weight:700;fill:#111827}.body{font-size:16px;fill:#374151}.small{font-size:14px;fill:#4b5563}.mono{font-family:monospace;font-size:15px;fill:#111827}.grid{stroke:#cbd5e1;stroke-width:1}.arrow{stroke:#475569;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0l10 5-10 5z" fill="#475569"/></marker>
+  </defs>
+  <rect width="1280" height="720" fill="#f8fafc"/>
+  <text x="55" y="58" class="title">3-stage cp.async mainloop와 epilogue</text>
+
+  <text x="55" y="115" class="heading">시간</text>
+  <path d="M130 108H1205" class="arrow"/>
+  <line x1="280" y1="130" x2="280" y2="430" class="grid"/>
+  <line x1="500" y1="130" x2="500" y2="430" class="grid"/>
+  <line x1="720" y1="130" x2="720" y2="430" class="grid"/>
+  <line x1="940" y1="130" x2="940" y2="430" class="grid"/>
+  <line x1="1160" y1="130" x2="1160" y2="430" class="grid"/>
+
+  <text x="55" y="175" class="heading">cp.async</text>
+  <rect x="145" y="145" width="125" height="55" rx="8" fill="#bfdbfe" stroke="#2563eb" stroke-width="2"/>
+  <text x="207" y="178" text-anchor="middle" class="mono">K0 → S0</text>
+  <rect x="285" y="145" width="125" height="55" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="347" y="178" text-anchor="middle" class="mono">K1 → S1</text>
+  <rect x="505" y="145" width="125" height="55" rx="8" fill="#bfdbfe" stroke="#2563eb" stroke-width="2"/>
+  <text x="567" y="178" text-anchor="middle" class="mono">K2 → S2</text>
+  <rect x="725" y="145" width="125" height="55" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="787" y="178" text-anchor="middle" class="mono">K3 → S0</text>
+
+  <text x="55" y="275" class="heading">MMA</text>
+  <rect x="505" y="235" width="190" height="70" rx="9" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="600" y="266" text-anchor="middle" class="mono">S0: K0</text>
+  <text x="600" y="290" text-anchor="middle" class="small">ldmatrix + mma.sync</text>
+  <rect x="725" y="235" width="190" height="70" rx="9" fill="#bbf7d0" stroke="#16a34a" stroke-width="2"/>
+  <text x="820" y="266" text-anchor="middle" class="mono">S1: K1</text>
+  <text x="820" y="290" text-anchor="middle" class="small">ldmatrix + mma.sync</text>
+  <rect x="945" y="235" width="190" height="70" rx="9" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="1040" y="266" text-anchor="middle" class="mono">S2: K2</text>
+  <text x="1040" y="290" text-anchor="middle" class="small">ldmatrix + mma.sync</text>
+
+  <rect x="145" y="350" width="1010" height="70" rx="12" fill="#fff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="175" y="380" class="heading">Ring indices</text>
+  <text x="315" y="380" class="mono">read: 0 → 1 → 2 → 0</text>
+  <text x="625" y="380" class="mono">write: 2 → 0 → 1 → 2</text>
+  <text x="175" y="406" class="small">현재 stage를 읽는 동안 다음 K tile을 다른 stage에 채운다.</text>
+
+  <text x="55" y="490" class="heading">Epilogue</text>
+  <rect x="145" y="455" width="215" height="115" rx="12" fill="#f3e8ff" stroke="#9333ea" stroke-width="2"/>
+  <text x="252" y="493" text-anchor="middle" class="heading">RMEM</text>
+  <text x="252" y="526" text-anchor="middle" class="mono">FP32 tCrC</text>
+  <text x="252" y="550" text-anchor="middle" class="small">lane-owned fragment</text>
+  <path d="M360 512H485" class="arrow"/>
+  <text x="422" y="488" text-anchor="middle" class="small">BF16 convert</text>
+  <rect x="485" y="455" width="245" height="115" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="607" y="493" text-anchor="middle" class="heading">SMEM output tile</text>
+  <text x="607" y="526" text-anchor="middle" class="mono">sC[64,64]</text>
+  <text x="607" y="550" text-anchor="middle" class="small">store 순서로 재배치</text>
+  <path d="M730 512H855" class="arrow"/>
+  <text x="792" y="488" text-anchor="middle" class="mono">16 B packets</text>
+  <rect x="855" y="455" width="300" height="115" rx="12" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="1005" y="493" text-anchor="middle" class="heading">GMEM C</text>
+  <text x="1005" y="526" text-anchor="middle" class="mono">BF16 C[64,64]</text>
+  <text x="1005" y="550" text-anchor="middle" class="small">coalesced vector store</text>
+
+  <rect x="145" y="620" width="1010" height="55" rx="11" fill="#eef2ff" stroke="#6366f1" stroke-width="2"/>
+  <text x="170" y="653" class="body">같은 128 threads가 copy와 MMA를 모두 수행한다. TMA와 warp specialization은 Part 4에서 추가한다.</text>
+</svg>

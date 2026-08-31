@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">MMA atom and TiledMMA hierarchy</title>
+  <desc id="desc">A warp-level m16n8k16 MMA atom is repeated two times along M and two times along N to form a four-warp TiledMMA.</desc>
+  <defs>
+    <style>
+      text{font-family:NanumGothic,sans-serif}.title{font-size:30px;font-weight:700;fill:#111827}.heading{font-size:22px;font-weight:700;fill:#111827}.label{font-size:18px;font-weight:600;fill:#1f2937}.body{font-size:16px;fill:#374151}.small{font-size:14px;fill:#4b5563}.mono{font-family:monospace;font-size:16px;fill:#111827}.box{fill:#fff;stroke:#9ca3af;stroke-width:2}.atom0{fill:#dbeafe;stroke:#2563eb;stroke-width:2}.atom1{fill:#dcfce7;stroke:#16a34a;stroke-width:2}.atom2{fill:#fef3c7;stroke:#d97706;stroke-width:2}.atom3{fill:#f3e8ff;stroke:#9333ea;stroke-width:2}.arrow{stroke:#4b5563;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0l10 5-10 5z" fill="#4b5563"/></marker>
+  </defs>
+  <rect width="1200" height="650" fill="#f8fafc"/>
+  <text x="60" y="58" class="title">MMA atom에서 4-warp TiledMMA까지</text>
+
+  <text x="70" y="115" class="heading">Warp MMA atom</text>
+  <rect x="70" y="145" width="350" height="250" rx="16" class="box"/>
+  <rect x="120" y="195" width="250" height="125" rx="10" class="atom0"/>
+  <text x="245" y="245" text-anchor="middle" class="heading">m16n8k16</text>
+  <text x="245" y="277" text-anchor="middle" class="body">C 16×8, reduction K 16</text>
+  <text x="245" y="305" text-anchor="middle" class="body">32 lanes · 2,048 FMA</text>
+  <text x="95" y="360" class="small">A/B: BF16 · accumulator: FP32</text>
+  <text x="95" y="383" class="small">한 warp가 instruction 하나를 함께 실행</text>
+
+  <path d="M445 270H555" class="arrow"/>
+  <text x="500" y="245" text-anchor="middle" class="mono">(2, 2, 1)</text>
+  <text x="500" y="300" text-anchor="middle" class="small">M×N 방향으로</text>
+  <text x="500" y="322" text-anchor="middle" class="small">atom 반복</text>
+
+  <text x="590" y="115" class="heading">TiledMMA: 32×16×16</text>
+  <rect x="590" y="145" width="540" height="360" rx="16" class="box"/>
+  <text x="845" y="180" text-anchor="middle" class="label">N: 16</text>
+  <text x="615" y="330" transform="rotate(-90 615 330)" text-anchor="middle" class="label">M: 32</text>
+  <rect x="655" y="205" width="205" height="120" rx="8" class="atom0"/>
+  <rect x="860" y="205" width="205" height="120" rx="8" class="atom2"/>
+  <rect x="655" y="325" width="205" height="120" rx="8" class="atom1"/>
+  <rect x="860" y="325" width="205" height="120" rx="8" class="atom3"/>
+  <text x="757" y="255" text-anchor="middle" class="heading">Warp 0</text>
+  <text x="757" y="285" text-anchor="middle" class="body">atom (0,0,0)</text>
+  <text x="962" y="255" text-anchor="middle" class="heading">Warp 2</text>
+  <text x="962" y="285" text-anchor="middle" class="body">atom (0,1,0)</text>
+  <text x="757" y="375" text-anchor="middle" class="heading">Warp 1</text>
+  <text x="757" y="405" text-anchor="middle" class="body">atom (1,0,0)</text>
+  <text x="962" y="375" text-anchor="middle" class="heading">Warp 3</text>
+  <text x="962" y="405" text-anchor="middle" class="body">atom (1,1,0)</text>
+  <text x="845" y="482" text-anchor="middle" class="small">각 atom 내부의 A/B/C fragment는 32개 lane register에 분산된다.</text>
+
+  <rect x="70" y="550" width="1060" height="60" rx="12" fill="#eef2ff" stroke="#6366f1" stroke-width="2"/>
+  <text x="95" y="586" class="label">Instruction shape</text>
+  <text x="280" y="586" class="mono">(16,8,16)</text>
+  <text x="430" y="586" class="label">Atom layout</text>
+  <text x="565" y="586" class="mono">(2,2,1)</text>
+  <text x="700" y="586" class="label">Threads</text>
+  <text x="790" y="586" class="mono">4 warps = 128</text>
+</svg>

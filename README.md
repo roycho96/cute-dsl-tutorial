@@ -39,11 +39,13 @@ Vector addition, reduction, transpose, softmax를 직접 구현합니다. Vector
 
 ### Part 3. Building a Tensor Core GEMM
 
-- [ ] 08. MMA atom and TiledMMA
-- [ ] 09. First tiled Tensor Core GEMM
-- [ ] 10. Multistage GEMM and epilogue
+- [x] [08. MMA atom and TiledMMA](book/08-mma-atom-tiledmma.md)
+- [x] [09. First tiled Tensor Core GEMM](book/09-first-tensor-core-gemm.md)
+- [x] [10. Multistage GEMM and epilogue](book/10-multistage-gemm-epilogue.md)
 
-Part 2에서 사용한 thread partitioning, vectorized memory access, shared-memory staging을 GEMM에 적용합니다. 각 단계에서 accumulator Layout과 GMEM → SMEM → RMEM dataflow를 코드와 함께 추적합니다.
+Part 2에서 사용한 thread partitioning, vectorized memory access, shared-memory staging을 BF16 Tensor Core GEMM에 적용합니다. `m16n8k16` MMA atom에서 시작해 단일-stage GEMM, 3-stage `cp.async` mainloop, shared-memory epilogue까지 코드로 연결합니다.
+
+Part 3을 마치면 `TiledMMA`의 warp·lane mapping을 읽고, GMEM → SMEM → RMEM → MMA → epilogue dataflow를 kernel 코드에서 추적할 수 있어야 합니다.
 
 ### Part 4. Asynchronous pipelines and modern architectures
 
